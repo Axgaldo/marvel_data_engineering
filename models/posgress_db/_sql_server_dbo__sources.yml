@@ -1,0 +1,81 @@
+version: 2
+
+sources:
+
+  - name: postgres_source
+    schema: POSTGRES_PUBLIC
+    database: DBT_TEST_BRONZE_DB
+
+    quoting:
+      database: false
+      schema: false
+      identifier: false
+
+    tables:
+
+      - name: POSTGRES_ADDRESSES
+        columns:
+          - name: ADDRESS_ID
+          - name: ZIPCODE
+          - name: COUNTRY
+          - name: ADDRESS
+          - name: STATE
+          - name: DELETED
+          - name: _FIVETRAN_SYNCED
+
+      - name: POSTGRES_ORDERITEMS
+        columns:
+          - name: ORDER_ID
+          - name: PRODUCT_ID
+          - name: QUANTITY
+          - name: DELETED
+          - name: SYNCED
+
+      - name: POSTGRES_ORDERS
+        columns:
+          - name: ORDER_ID
+          - name: SHIPPING_SERVICE
+          - name: SHIPPING_COST
+          - name: ADDRESS_ID
+          - name: CREATED_AT
+          - name: PROMO_ID
+          - name: ESTIMATED_DELIVERY_AT
+          - name: ORDER_COST
+          - name: USER_ID
+          - name: ORDER_TOTAL
+          - name: DELIVERED_AT
+          - name: TRACKING_ID
+          - name: STATUS
+          - name: _FIVETRAN_DELETED
+          - name: _FIVETRAN_SYNCED
+
+      - name: POSTGRES_PRODUCTS
+        columns:
+          - name: PRODUCT_ID
+          - name: PRICE
+          - name: NAME
+          - name: INVENTORY
+          - name: DELETED
+          - name: _FIVETRAN_SYNCED
+
+      - name: POSTGRES_PROMOS
+        columns:
+          - name: PROMO_ID
+          - name: DISCOUNT
+          - name: STATUS
+          - name: _FIVETRAN_DELETED
+          - name: _FIVETRAN_SYNCED
+
+      - name: POSTGRES_USER
+        columns:
+          - name: USER_ID
+          - name: UPDATED_AT
+          - name: ADDRESS_ID
+          - name: LAST_NAME
+          - name: CREATED_AT
+          - name: PHONE_NUMBER
+          - name: TOTAL_ORDERS
+          - name: FIRST_NAME
+          - name: EMAIL
+          - name: _FIVETRAN_DELETED
+          - name: _FIVETRAN_SYNCED
