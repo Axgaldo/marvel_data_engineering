@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_google_sheets__budget
+    latest_version: 1
+    config:
+      materialized: table
+      contract:
+        enforced: true
+    description: Budget data from Google Sheets with cleaned types
+    versions:
+      - v: 1
+      - v: 2
+    columns:
+      - name: _ROW
+        tests:
+          - unique
+          - not_null
+      - name: PRODUCT_ID
+        tests:
+          - not_null
+      - name: QUANTITY
+        tests:
+          - not_null
+      - name: MONTH
+        tests:
+          - not_null

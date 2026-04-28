@@ -1,0 +1,62 @@
+version: 2
+
+models:
+  - name: stg_postgres__addresses
+    description: Cleaned addresses from Postgres
+    columns:
+      - name: ADDRESS_ID
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_postgres__orderitems
+    description: Cleaned order line items from Postgres
+    columns:
+      - name: ORDER_ID
+        tests:
+          - not_null
+      - name: PRODUCT_ID
+        tests:
+          - not_null
+
+  - name: stg_postgres__orders
+    description: Cleaned orders from Postgres
+    columns:
+      - name: ORDER_ID
+        tests:
+          - unique
+          - not_null
+      - name: USER_ID
+        tests:
+          - not_null
+
+  - name: stg_postgres__products
+    description: Cleaned products from Postgres
+    columns:
+      - name: PRODUCT_ID
+        tests:
+          - unique
+          - not_null
+      - name: NAME
+        tests:
+          - not_null
+
+  - name: stg_postgres__promos
+    description: Cleaned promotions from Postgres
+    columns:
+      - name: PROMO_ID
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_postgres__users
+    description: Cleaned users from Postgres
+    columns:
+      - name: USER_ID
+        tests:
+          - unique
+          - not_null
+      - name: EMAIL
+        tests:
+          - unique
+          - not_null
