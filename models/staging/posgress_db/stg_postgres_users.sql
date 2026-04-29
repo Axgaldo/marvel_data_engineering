@@ -1,7 +1,15 @@
-{{ config(materialized='view') }}
+--{{ config(materialized='view') }}
+{{ config(
+    materialized='incremental',
+    unique_key='USER_ID',
+    incremental_strategy='delete+insert'
+) }}
 
 WITH source AS (
     SELECT * FROM {{ source('postgres_source', 'POSTGRES_USER') }}
+{% if is_incremental() %}
+    WHERE CREATED_AT > (SELECT MAX(CREATED_AT) FROM {{ this }})
+{% endif %}
 ),
 
 renamed AS (

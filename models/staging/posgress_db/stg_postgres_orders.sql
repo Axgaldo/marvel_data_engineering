@@ -1,7 +1,14 @@
-{{ config(materialized='view') }}
+--{{ config(materialized='view') }}
+{{ config(
+    materialized='incremental',
+    incremental_strategy='append'
+) }}
 
 WITH source AS (
     SELECT * FROM {{ source('postgres_source', 'POSTGRES_ORDERS') }}
+{% if is_incremental() %}
+    WHERE _FIVETRAN_SYNCED > (SELECT MAX(LOADED_AT) FROM {{ this }})
+{% endif %}
 ),
 
 renamed AS (
