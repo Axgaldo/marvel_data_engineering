@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+
+  - name: GOOGLE_SHEETS_SCD # name of the source 
+    schema: GOOGLE_SHEETS # this is the schema our raw data lives in
+    database: DBT_TEST_BRONZE_DB # this is the name of our database
+
+    tables:
+
+      - name: users
+        columns:
+          - name: Nombre
+          - name: DNI
+          - name: email
+          - name: fecha_alta_sistema
