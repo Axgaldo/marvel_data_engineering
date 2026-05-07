@@ -45,9 +45,13 @@ models:
     # Applies to all files under models/example/
     staging:
       +materialized: view
-      +database: DBT_TEST_SILVER_DB
+      +database: DEV_MARVEL_BRONZE_DB
       +schema: STAGING
+    base:
+      +materialized: view
+      +database: DEV_MARVEL_SILVER_DB
+      +schema: BASE
     marts:
       +materialized: table
-      +database: DBT_TEST_GOLD_DB
+      +database: DEV_MARVEL_GOLD_DB
       +schema: MARTS
