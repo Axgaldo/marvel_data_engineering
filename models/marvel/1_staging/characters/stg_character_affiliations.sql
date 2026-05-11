@@ -12,8 +12,8 @@ select
     team.value:name::string as team_name,
     -- Extraemos si es 'former' o 'current' del nombre de la llave
     case 
-        when f.key contains 'former' then 'FORMER'
-        when f.key contains 'current' then 'CURRENT'
+        when f.key like '%former%' then 'FORMER'
+        when f.key like '%current%' then 'CURRENT'
         else 'UNKNOWN'
     end as affiliation_status,
     team.value:url::string as team_url

@@ -7,6 +7,6 @@ with source as (
     where entity_name is not null
 )
 select
-    md5(lower(entity_name)) as multiversal_entity_id,
+    {{ generate_marvel_id("entity_name") }} as multiversal_entity_id,
     entity_name
 from source

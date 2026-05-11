@@ -17,5 +17,5 @@ with link_data as (
 )
 select
     character_id,
-    md5(lower(capability_name)) as capability_id
+    {{ generate_marvel_id("capability_name") }} as capability_id
 from link_data

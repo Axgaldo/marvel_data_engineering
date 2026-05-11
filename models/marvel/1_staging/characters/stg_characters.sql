@@ -1,4 +1,4 @@
-{{ config(database='MARVEL_BRONZE_DB', schema='STAGING') }}
+-- stg_characters.sql
 
 with source as (
     select * from {{ source('marvel_raw', 'raw_characters') }}
@@ -9,10 +9,10 @@ extracted as (
         json_data:char_id::int as character_id,
         json_data:name::string as character_name,
         
-        -- FKs a tablas Maestras
-        md5(lower(nullif(json_data:is_alter_ego_of.name::string, ''))) as multiversal_entity_id,
-        md5(lower(json_data:biography.species::string)) as species_id,
-        md5(lower(json_data:biography.pronouns::string)) as pronouns_id,
+        -- FKs a tablas normalizadas
+        {{ generate_marvel_id("json_data:is_alter_ego_of.name") }} as multiversal_entity_id,
+        {{ generate_marvel_id("json_data:biography.species") }} as species_id,
+        {{ generate_marvel_id("json_data:biography.pronouns") }} as pronouns_id,
 
         json_data:metadata.universe::string as universe,
         json_data:biography.living_status::string as living_status,

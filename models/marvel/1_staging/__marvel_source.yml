@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: marvel_raw
     description: "Capa de aterrizaje (Landing) con los JSON crudos de League of Comic Geeks."
-    database: MARVEL_RAW_DB
+    database: MARVEL_BRONZE_DB
     schema: LOCG
     tables:
       - name: raw_comics
@@ -22,6 +22,12 @@ sources:
 
       - name: raw_release_dates
         description: "Tabla cargada desde el archivo JSONL con las fechas de lanzamiento y series."
+        columns:
+          - name: json_data
+          - name: ingested_at
+          
+      - name: raw_series  
+        description: "Índice maestro de colecciones/series de Marvel"
         columns:
           - name: json_data
           - name: ingested_at

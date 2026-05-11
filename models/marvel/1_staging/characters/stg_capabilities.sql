@@ -17,7 +17,7 @@ with all_capabilities as (
     lateral flatten(input => json_data:capabilities.proficiencies) f
 )
 select
-    md5(lower(capability_name)) as capability_id,
+    {{ generate_marvel_id("capability_name") }} as capability_id,
     capability_name,
     is_super_power
 from all_capabilities
