@@ -1,7 +1,7 @@
 -- stg_roles.sql
 
 with raw_roles as (
-    select distinct trim(r.value::string) as role_name
+    select distinct {{ clean_text('r.value') }} as role_name
     from {{ source('marvel_raw', 'raw_comics') }},
     lateral flatten(input => json_data:stories) s,
     lateral flatten(input => s.value:creators) c,

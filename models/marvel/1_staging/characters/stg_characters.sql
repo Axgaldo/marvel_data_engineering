@@ -8,13 +8,12 @@ extracted as (
     select
         -- Identificadores básicos
         json_data:char_id::int as character_id,
-        json_data:name::string as character_name,
+        {{ clean_text('json_data:name') }} as character_name,
         json_data:image::string as image_url,
         
         -- FKs a tablas maestras (Normalización)
         {{ generate_marvel_id("json_data:biography.franchise") }} as franchise_id,
         {{ generate_marvel_id("json_data:metadata.universe") }} as universe_id,
-        {{ generate_marvel_id("json_data:biography.species") }} as species_id,
         {{ generate_marvel_id("json_data:biography.pronouns") }} as pronouns_id,
         
         -- Entidad Multiversal Ancla (Coalesce para que si no tiene alter ego, el "multiversal" es su propio nombre)
@@ -22,13 +21,9 @@ extracted as (
 
         -- Atributos de Biografía
 
-        upper(json_data:biography.living_status::string) as living_status, --valores posibles: ALIVE, DEAD, UNDEAD
+        {{ clean_text('json_data:biography.living_status') }} as living_status, --valores posibles: ALIVE, DEAD, UNDEAD
 
         --(json_data:biography.living_status::string ilike 'Alive') as is_alive,
-        json_data:biography.franchise::string as franchise_name,
-        json_data:metadata.universe::string as universe_name,
-        json_data:biography.occupation::string as occupation,
-        json_data:biography.place_of_origin::string as place_of_origin,
 
         -- Lógica de Años Activos (1940 - 2026)
         try_to_number(split_part(json_data:metadata.years_active::string, ' - ', 1)) as active_since_year,

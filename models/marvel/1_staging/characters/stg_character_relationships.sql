@@ -11,9 +11,9 @@ select
     character_id,
     f.key::string as relationship_category, -- 'parents', 'siblings', etc.
     rel.value:id::int as relative_id,
-    rel.value:name::string as relative_name,
-    rel.value:context::string as relationship_context, -- "Mother, Deceased"
-    rel.value:url::string as relative_url
+    {{ clean_text('rel.value:name') }} as relative_name,
+    {{ clean_text('rel.value:context') }} as relationship_context, -- "Mother, Deceased, Children"
+
 from source,
 lateral flatten(input => rel_json) f,
 lateral flatten(input => f.value) rel

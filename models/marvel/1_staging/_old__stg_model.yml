@@ -2,7 +2,7 @@ version: 2
 
 models:
   # ==========================================
-  # ARTISTS
+  # ARTISTS & ROLES
   # ==========================================
   - name: stg_artists
     description: "Maestro de artistas y creadores únicos (escritores, dibujantes, etc.)."
@@ -13,7 +13,7 @@ models:
           - unique
           - not_null
       - name: artist_name
-        description: "Nombre completo del creador."
+        description: "Nombre completo del creador en UPPERCASE."
 
   - name: stg_roles
     description: "Diccionario de roles creativos para normalización."
@@ -23,13 +23,13 @@ models:
           - unique
           - not_null
       - name: role_name
-        description: "Ej: Writer, Artist, Colorist, Letterer."
+        description: "Ej: WRITER, ARTIST, COLORIST, LETTERER."
 
   # ==========================================
   # CHARACTERS
   # ==========================================
   - name: stg_characters
-    description: "Tabla principal de personajes (dimension character)."
+    description: "Tabla principal de personajes (dimensión character)."
     columns:
       - name: character_id
         data_tests:
@@ -37,6 +37,10 @@ models:
           - not_null
       - name: character_name
         description: "Nombre del personaje o alter-ego."
+      - name: real_name
+        description: "Nombre real del personaje si aplica."
+      - name: character_url
+        description: "URL de la ficha del personaje."
       - name: character_type
         description: "Tipo de entrada (Alter-Ego, Persona, etc.)."
       - name: franchise_id
@@ -52,12 +56,6 @@ models:
               arguments:
                 to: ref('stg_multiversal_entities')
                 field: multiversal_entity_id
-      - name: species_id
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('stg_character_species')
-                field: species_id
       - name: pronouns_id
         data_tests:
           - relationships:
@@ -70,6 +68,8 @@ models:
               arguments:
                 to: ref('stg_multiversal_entities')
                 field: multiversal_entity_id
+      - name: biography_text
+        description: "Texto descriptivo de la biografía."
       - name: living_status
         description: "Estado vital estandarizado."
         data_tests:
@@ -80,11 +80,31 @@ models:
       - name: is_alive
         description: "Booleano derivado de living_status."
       - name: active_since_year
-        description: "Año de la primera aparición o inicio de actividad."
+        description: "Año de la primera aparición."
       - name: active_until_year
-        description: "Año de desaparición o fin de actividad (NULL si sigue activo en 2026)."
+        description: "Año de desaparición (NULL si sigue activo)."
+      - name: loaded_at
+        description: "Timestamp de ingesta de datos."
 
   - name: stg_character_species
+    description: "Tabla bridge: relaciona personajes con sus múltiples especies."
+    columns:
+      - name: character_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_characters')
+                field: character_id
+      - name: species_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_species')
+                field: species_id
+
+  - name: stg_species
     columns:
       - name: species_id
         data_tests:
@@ -100,7 +120,6 @@ models:
           - not_null
 
   - name: stg_multiversal_entities
-    description: "Entidades que agrupan variantes multiversales bajo un mismo concepto."
     columns:
       - name: multiversal_entity_id
         data_tests:
@@ -109,7 +128,6 @@ models:
       - name: multiversal_entity_name
 
   - name: stg_franchises
-    description: "Maestro de franquicias (Marvel, DC, etc.)."
     columns:
       - name: franchise_id
         data_tests:
@@ -117,8 +135,10 @@ models:
           - not_null
       - name: franchise_name
 
+  # ==========================================
+  # TEAMS & RELATIONSHIPS
+  # ==========================================
   - name: stg_teams
-    description: "Maestro de equipos y grupos."
     columns:
       - name: team_id
         data_tests:
@@ -129,7 +149,6 @@ models:
           - not_null
 
   - name: stg_character_affiliations
-    description: "Tabla bridge de personajes y sus equipos."
     columns:
       - name: character_id
         data_tests:
@@ -145,11 +164,11 @@ models:
                 to: ref('stg_teams')
                 field: team_id
       - name: is_current
+        description: "Indica si el personaje es miembro actual del equipo."
         data_tests:
           - not_null
 
   - name: stg_character_creators
-    description: "Relación entre personajes y sus creadores originales."
     columns:
       - name: character_id
         data_tests:
@@ -164,8 +183,24 @@ models:
                 to: ref('stg_artists')
                 field: artist_id
 
+  - name: stg_character_relationships
+    columns:
+      - name: character_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_characters')
+                field: character_id
+      - name: related_character_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_characters')
+                field: character_id
+      - name: relationship_type
+
   # ==========================================
-  # ISSUES & STORIES
+  # ISSUES & SERIES
   # ==========================================
   - name: stg_series
     columns:
@@ -174,6 +209,10 @@ models:
           - unique
           - not_null
       - name: series_title
+      - name: start_year
+      - name: end_year
+      - name: total_issues_expected
+      - name: series_url
 
   - name: stg_formats
     columns:
@@ -190,21 +229,32 @@ models:
           - not_null
       - name: series_id
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('stg_series')
                 field: series_id
+      - name: issue_title
+      - name: issue_url
+      - name: release_date_raw
       - name: format_id
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('stg_formats')
                 field: format_id
+      - name: price_dollars
+      - name: num_pages
       - name: rating_avg
-        description: "Rating de 0 a 5."
+      - name: ratings_count
+      - name: upc
+      - name: cover_url
 
+  # ==========================================
+  # STORIES & BRIDGES
+  # ==========================================
   - name: stg_stories
-    description: "Desglose de historias individuales dentro de cada cómic."
     columns:
       - name: story_id
         data_tests:
@@ -212,15 +262,15 @@ models:
           - not_null
       - name: issue_id
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('stg_issues')
                 field: issue_id
       - name: story_index
-        description: "Posición de la historia en el issue."
+      - name: story_title
 
   - name: stg_story_characters
-    description: "Bridge entre historias y personajes con tipo de aparición."
     columns:
       - name: story_id
         data_tests:
@@ -243,22 +293,24 @@ models:
                 values: ['Main', 'Supporting', 'Cameo']
 
   - name: stg_story_artists
-    description: "Relación de artistas con cada historia y su rol específico."
     columns:
       - name: story_id
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('stg_stories')
                 field: story_id
       - name: artist_id
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('stg_artists')
                 field: artist_id
       - name: role_id
         data_tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('stg_roles')

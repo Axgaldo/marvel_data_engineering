@@ -1,14 +1,14 @@
 -- set_artists.sql
 
 with artists_from_issues as (
-    select distinct trim(c.value:name::string) as artist_name
+    select distinct upper(trim(c.value:name::string)) as artist_name
     from {{ source('marvel_raw', 'raw_comics') }},
     lateral flatten(input => json_data:stories) s,
     lateral flatten(input => s.value:creators) c
 ),
 
 artists_from_characters as (
-    select distinct trim(c.value:name::string) as artist_name
+    select distinct upper(trim(c.value:name::string)) as artist_name
     from {{ source('marvel_raw', 'raw_characters') }},
     lateral flatten(input => json_data:biography.creators) c
 ),

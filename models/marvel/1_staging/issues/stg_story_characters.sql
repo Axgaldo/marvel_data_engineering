@@ -15,7 +15,7 @@ select
     {{ dbt_utils.generate_surrogate_key(['issue_id', 'story_index']) }} as story_id,
     
     -- FK al personaje (usamos la macro porque es por nombre/entidad)
-    {{ generate_marvel_id("char_json:name::string") }} as character_id,
+    {{ generate_marvel_id("char_json:name") }} as character_id,
     
     -- Metadato de la relación
     char_json:type::string as appearance_type -- "Main", "Supporting", "Cameo"

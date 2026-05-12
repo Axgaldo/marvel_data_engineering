@@ -3,7 +3,7 @@
 with all_capabilities as (
     -- Unimos ambos tipos para sacar la lista única
     select 
-        f.value::string as capability_name,
+        upper(f.value::string) as capability_name,
         true as is_super_power
     from {{ source('marvel_raw', 'raw_characters') }},
     lateral flatten(input => json_data:capabilities.abilities) f
@@ -11,7 +11,7 @@ with all_capabilities as (
     union distinct
 
     select 
-        f.value::string as capability_name,
+        {{ clean_text('f.value') }} as capability_name,
         false as is_super_power
     from {{ source('marvel_raw', 'raw_characters') }},
     lateral flatten(input => json_data:capabilities.proficiencies) f

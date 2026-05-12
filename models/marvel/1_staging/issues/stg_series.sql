@@ -7,7 +7,7 @@ with source as (
 select
     -- Al haber usado STRIP_OUTER_ARRAY, accedemos directo a los campos
     json_data:series_id::int as series_id,
-    json_data:title::string as series_title,
+    {{ clean_text('json_data:title') }} as series_title,
     json_data:start_year::int as start_year,
     json_data:end_year::int as end_year,
     json_data:issue_count::int as total_issues_expected,

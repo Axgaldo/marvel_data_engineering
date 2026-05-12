@@ -13,6 +13,6 @@ select
     {{ dbt_utils.generate_surrogate_key(['issue_id', 'story_index']) }} as story_id,
     issue_id,
     story_index,
-    story_json:title::string as story_title,
+    {{ clean_text('story_json:title') }} as story_title,
     try_to_number(story_json:pages::string) as story_pages
 from source

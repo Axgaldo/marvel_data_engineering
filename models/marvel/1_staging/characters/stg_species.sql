@@ -1,15 +1,15 @@
--- stg_character_species.sql
+-- stg_species.sql
 
-with character_species_split as (
+with split_species as (
     select 
-        json_data:char_id::int as character_id,
         {{ clean_text('f.value') }} as species_name
     from {{ source('marvel_raw', 'raw_characters') }},
+    -- Dividimos la cadena por espacios y aplanamos
     lateral flatten(input => strtok_to_array(json_data:biography.species::string, ' ')) f
 )
 
-select
-    character_id,
-    {{ dbt_utils.generate_surrogate_key(['species_name']) }} as species_id
-from character_species_split
+select distinct
+    {{ generate_marvel_id("species_name") }} as species_id,
+    species_name
+from split_species
 where species_name is not null

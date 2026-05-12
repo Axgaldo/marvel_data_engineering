@@ -8,7 +8,7 @@ with source as (
 
 flattened_teams as (
     select distinct
-        team.value:name::string as team_name_raw
+        {{ clean_text('team.value:name') }} as team_name
     from source,
     lateral flatten(input => aff_json) f,
     lateral flatten(input => f.value) team
@@ -16,7 +16,7 @@ flattened_teams as (
 
 select
     -- La macro genera el mismo ID que en la tabla de afiliaciones
-    {{ generate_marvel_id("team_name_raw") }} as team_id,
-    team_name_raw as team_name
+    {{ generate_marvel_id("team_name") }} as team_id,
+    team_name
 from flattened_teams
 where team_name is not null

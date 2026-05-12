@@ -7,7 +7,7 @@ with comics_source as (
 release_dates_source as (
     select 
         try_to_number(json_data:comic_id::string) as issue_id,
-        json_data:release_date_raw::string as release_date_raw,
+        {{ clean_text('json_data:release_date_raw') }} as release_date,
         try_to_number(json_data:series_id::string) as series_id
     from {{ source('marvel_raw', 'raw_release_dates') }}
 ),
@@ -20,10 +20,10 @@ flattened as (
         
         -- Datos de Release Dates
         r.series_id,
-        r.release_date_raw,
+        r.release_date,
         
         -- Información de Cabecera
-        c.json_data:title::string as issue_title,
+        {{ clean_text('c.json_data:title') }} as issue_title,
         c.json_data:cover_url::string as cover_url,
         c.json_data:description::string as description,
         
@@ -43,9 +43,9 @@ flattened as (
         -- Precios (Limpieza de '$' + TRY_TO_DECIMAL)
         try_to_decimal(replace(c.json_data:details.price::string, '$', ''), 8, 2) as price_dollars,
         
-        c.json_data:details.upc::string as upc,
-        c.json_data:details.sku::string as sku,
-        c.json_data:details.cover_date::string as cover_date_raw,
+        {{ clean_text('c.json_data:details.upc') }} as upc,
+        {{ clean_text('c.json_data:details.sku') }} as sku,
+        {{ clean_text('c.json_data:details.cover_date') }} as cover_date_raw,
         
         c.ingested_at as loaded_at
         
