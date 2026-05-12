@@ -1,9 +1,8 @@
 -- stg_stories.sql
 
-
 with source as (
     select 
-        json_data:comic_id::int as issue_id,
+        try_to_number(json_data:comic_id::string) as issue_id,
         f.value as story_json,
         f.index as story_index
     from {{ source('marvel_raw', 'raw_comics') }},
@@ -11,8 +10,9 @@ with source as (
 )
 
 select
-    {{ dbt_utils.generate_surrogate_key(['issue_id', 'story_index']) }} as story_id, -- NO USAMOS MACRO DE GENERAR ID PORQUE SON NÚMEROS
+    {{ dbt_utils.generate_surrogate_key(['issue_id', 'story_index']) }} as story_id,
     issue_id,
+    story_index,
     story_json:title::string as story_title,
-    nullif(story_json:pages::string, '')::int as story_pages
+    try_to_number(story_json:pages::string) as story_pages
 from source

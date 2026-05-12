@@ -2,7 +2,7 @@
 
 with source as (
     select 
-        json_data:char_id::int as character_id,
+        try_to_number(json_data:char_id::string) as character_id,
         json_data:relationships as rel_json
     from {{ source('marvel_raw', 'raw_characters') }}
 )

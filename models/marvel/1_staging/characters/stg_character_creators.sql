@@ -2,7 +2,7 @@
 
 with creators_flat as (
     select
-        json_data:char_id::int as character_id,
+        try_to_number(json_data:char_id::string) as character_id,
         trim(f.value:name::string) as creator_name
     from {{ source('marvel_raw', 'raw_characters') }},
     lateral flatten(input => json_data:biography.creators) f

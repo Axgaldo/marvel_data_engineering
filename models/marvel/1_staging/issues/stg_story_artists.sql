@@ -4,6 +4,7 @@
 
 with expanded_roles as (
     select
+        try_to_number(json_data:comic_id::string) as issue_id,
         s.index as story_index,
         trim(c.value:name::string) as artist_name,
         trim(r.value::string) as role_name
