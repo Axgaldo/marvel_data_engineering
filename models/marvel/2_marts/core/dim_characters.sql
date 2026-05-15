@@ -16,7 +16,7 @@ species_agg as (
 )
 
 select
-    c.character_id::string as character_id, -- El ID de la dimensión será String para ser compatible con los hechos
+    c.character_id::string as character_id, -- String para ser compatible con los hechos
     c.character_name,
     f.franchise_name,
     u.universe_name,
