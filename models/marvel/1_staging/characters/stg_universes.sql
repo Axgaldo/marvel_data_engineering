@@ -2,11 +2,11 @@
 
 with source as (
     select distinct
-        {{ clean_text('json_data:biography.universe') }} as universe_name
+        json_data:metadata.universe as universe_name_raw
     from {{ source('marvel_raw', 'raw_characters') }}
 )
 
 select
-    {{ dbt_utils.generate_surrogate_key(['universe_name']) }} as universe_id,
-    universe_name
+    {{ generate_marvel_id('universe_name_raw') }} as universe_id,
+    {{ clean_text('universe_name_raw' ) }} as universe_name
 from source

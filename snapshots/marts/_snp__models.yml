@@ -1,0 +1,131 @@
+version: 2
+
+snapshots:
+  - name: snp_character_affiliations
+    description: "Snapshot SCD2 que almacena el histórico de afiliaciones de personajes a equipos."
+
+    columns:
+      - name: character_id
+        data_type: number
+        description: "Identificador único del personaje."
+        data_tests:
+          - not_null
+
+      - name: team_id
+        data_type: varchar
+        description: "Identificador del equipo o afiliación."
+        data_tests:
+          - not_null
+
+      - name: is_current
+        data_type: boolean
+        description: "Indica si la afiliación es la vigente actualmente."
+        data_tests:
+          - not_null
+
+      - name: dbt_scd_id
+        data_type: varchar
+        description: "Identificador interno generado por dbt para el control SCD."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: dbt_updated_at
+        data_type: timestamp_ntz
+        description: "Timestamp de actualización del registro origen."
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: "Fecha de inicio de validez del registro snapshot."
+        data_tests:
+          - not_null
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: "Fecha de fin de validez del registro snapshot."
+
+  - name: snp_characters
+    description: "Snapshot SCD2 que almacena el histórico de atributos de personajes."
+
+    columns:
+      - name: character_id
+        data_type: number
+        description: "Identificador único del personaje."
+        data_tests:
+          - not_null
+
+      - name: character_name
+        data_type: varchar
+        description: "Nombre del personaje."
+        data_tests:
+          - not_null
+
+      - name: image_url
+        data_type: varchar
+        description: "URL de la imagen principal del personaje."
+
+      - name: franchise_id
+        data_type: varchar
+        description: "Identificador de la franquicia."
+
+      - name: universe_id
+        data_type: varchar
+        description: "Identificador del universo."
+
+      - name: pronouns_id
+        data_type: varchar
+        description: "Identificador de pronombres asociados al personaje."
+
+      - name: multiversal_entity_id
+        data_type: varchar
+        description: "Identificador multiversal asociado al personaje."
+
+      - name: living_status
+        data_type: varchar
+        description: "Estado vital del personaje."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ALIVE', 'DEAD', 'UNDEAD']
+                quote: true
+
+      - name: active_since_year
+        data_type: number
+        description: "Año desde el cual el personaje aparece activo."
+
+      - name: active_until_year
+        data_type: number
+        description: "Último año conocido de actividad del personaje."
+
+      - name: first_appearance_name
+        data_type: varchar
+        description: "Nombre de la primera aparición del personaje."
+
+      - name: first_appearance_issue_id
+        data_type: number
+        description: "Identificador del issue de primera aparición."
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Timestamp de carga del registro."
+
+      - name: dbt_scd_id
+        data_type: varchar
+        description: "Identificador interno generado por dbt para el control SCD."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: dbt_updated_at
+        data_type: timestamp_ntz
+        description: "Timestamp de actualización del registro origen."
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: "Fecha de inicio de validez del registro snapshot."
+        data_tests:
+          - not_null
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: "Fecha de fin de validez del registro snapshot."

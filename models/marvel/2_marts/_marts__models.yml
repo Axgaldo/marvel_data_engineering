@@ -1,0 +1,357 @@
+version: 2
+
+models:
+  - name: dim_artists
+    description: "Dimensión de artistas relacionados con publicaciones."
+
+    columns:
+      - name: artist_id
+        data_type: varchar
+        description: "Identificador único del artista."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: artist_name
+        data_type: varchar
+        description: "Nombre del artista."
+        data_tests:
+          - not_null
+
+  - name: dim_characters
+    description: "Dimensión principal de personajes del universo Marvel."
+
+    columns:
+      - name: character_id
+        data_type: varchar
+        description: "Identificador único del personaje."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: character_name
+        data_type: varchar
+        description: "Nombre del personaje."
+        data_tests:
+          - not_null
+
+      - name: franchise_name
+        data_type: varchar
+        description: "Nombre de la franquicia asociada."
+
+      - name: universe_name
+        data_type: varchar
+        description: "Nombre del universo asociado."
+
+      - name: pronouns_desc
+        data_type: varchar
+        description: "Descripción de pronombres del personaje."
+
+      - name: multiversal_entity_name
+        data_type: varchar
+        description: "Entidad multiversal asociada."
+
+      - name: living_status
+        data_type: varchar
+        description: "Estado vital del personaje."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ALIVE', 'DEAD', 'UNDEAD']
+                quote: true
+
+      - name: is_alive_flag
+        data_type: boolean
+        description: "Indicador booleano de si el personaje está vivo."
+        data_tests:
+          - not_null
+
+      - name: active_since_year
+        data_type: number
+        description: "Año desde el cual el personaje está activo."
+
+      - name: last_active_year
+        data_type: number
+        description: "Último año de actividad registrado."
+
+      - name: is_currently_active
+        data_type: boolean
+        description: "Indica si el personaje continúa activo."
+
+      - name: first_appearance_name
+        data_type: varchar
+        description: "Nombre de la primera aparición."
+
+      - name: first_appearance_issue_id
+        data_type: number
+        description: "Identificador del issue de primera aparición."
+
+      - name: image_url
+        data_type: varchar
+        description: "URL de la imagen del personaje."
+
+      - name: species_list
+        data_type: varchar
+        description: "Listado de especies asociadas al personaje."
+
+      - name: record_valid_from
+        data_type: timestamp_ntz
+        description: "Fecha de inicio de validez del registro."
+
+      - name: last_version_update
+        data_type: timestamp_ntz
+        description: "Última actualización del registro."
+
+  - name: dim_date
+    description: "Dimensión calendario."
+
+    columns:
+      - name: date_id
+        data_type: date
+        description: "Fecha única."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: year
+        data_type: number
+        description: "Año calendario."
+
+      - name: month
+        data_type: number
+        description: "Mes calendario."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+      - name: day
+        data_type: number
+        description: "Día del mes."
+
+      - name: quarter
+        data_type: number
+        description: "Trimestre del año."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [1,2,3,4]
+
+      - name: month_name
+        data_type: varchar
+        description: "Nombre del mes."
+
+      - name: day_name
+        data_type: varchar
+        description: "Nombre del día."
+
+      - name: marvel_era
+        data_type: varchar
+        description: "Era editorial Marvel asociada."
+
+  - name: dim_issues
+    description: "Dimensión de publicaciones e issues."
+
+    columns:
+      - name: issue_id
+        data_type: number
+        description: "Identificador único del issue."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: issue_title
+        data_type: varchar
+        description: "Título del issue."
+
+      - name: issue_url
+        data_type: varchar
+        description: "URL oficial del issue."
+
+      - name: cover_url
+        data_type: varchar
+        description: "URL de la portada."
+
+      - name: description
+        data_type: varchar
+        description: "Descripción del issue."
+
+      - name: num_user_owns
+        data_type: number
+        description: "Número de usuarios que poseen el issue."
+
+      - name: num_user_reads
+        data_type: number
+        description: "Número de usuarios que han leído el issue."
+
+      - name: num_user_wishes
+        data_type: number
+        description: "Número de usuarios que desean el issue."
+
+      - name: release_date
+        data_type: date
+        description: "Fecha de lanzamiento."
+
+      - name: cover_date
+        data_type: date
+        description: "Fecha de portada."
+
+      - name: num_pages
+        data_type: number
+        description: "Número de páginas."
+
+      - name: price_dollars
+        data_type: number
+        description: "Precio en dólares."
+
+      - name: series_title
+        data_type: varchar
+        description: "Título de la serie."
+
+      - name: format_name
+        data_type: varchar
+        description: "Formato editorial."
+
+      - name: sku
+        data_type: varchar
+        description: "SKU comercial."
+
+      - name: upc
+        data_type: varchar
+        description: "Código UPC."
+
+  - name: dim_relationships
+    description: "Dimensión de relaciones entre personajes."
+
+    columns:
+      - name: relationship_key
+        data_type: varchar
+        description: "Clave única de relación."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_character_id
+        data_type: number
+        description: "Personaje origen de la relación."
+
+      - name: target_character_id
+        data_type: number
+        description: "Personaje destino de la relación."
+
+      - name: target_character_name
+        data_type: varchar
+        description: "Nombre del personaje destino."
+
+      - name: connection_type
+        data_type: varchar
+        description: "Tipo de relación."
+
+      - name: connection_detail
+        data_type: varchar
+        description: "Detalle descriptivo de la relación."
+
+  - name: dim_series
+    description: "Dimensión de series editoriales."
+
+    columns:
+      - name: series_id
+        data_type: number
+        description: "Identificador único de la serie."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: series_title
+        data_type: varchar
+        description: "Título de la serie."
+
+      - name: start_year
+        data_type: number
+        description: "Año de inicio."
+
+      - name: end_year
+        data_type: number
+        description: "Año de finalización."
+
+      - name: series_status
+        data_type: varchar
+        description: "Estado actual de la serie."
+
+      - name: total_years_run
+        data_type: number
+        description: "Cantidad total de años publicados."
+
+      - name: total_issues_expected
+        data_type: number
+        description: "Número esperado de issues."
+
+      - name: series_url
+        data_type: varchar
+        description: "URL oficial de la serie."
+
+  - name: dim_teams
+    description: "Dimensión de afiliaciones de personajes a equipos."
+
+    columns:
+      - name: membership_key
+        data_type: varchar
+        description: "Clave única de membresía."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: character_id
+        data_type: number
+        description: "Identificador del personaje."
+
+      - name: team_id
+        data_type: varchar
+        description: "Identificador del equipo."
+
+      - name: character_name
+        data_type: varchar
+        description: "Nombre del personaje."
+
+      - name: team_name
+        data_type: varchar
+        description: "Nombre del equipo."
+
+      - name: is_active_member
+        data_type: boolean
+        description: "Indica si la membresía está activa."
+
+      - name: joined_at_timestamp
+        data_type: timestamp_ntz
+        description: "Fecha de incorporación al equipo."
+
+      - name: last_membership_update
+        data_type: timestamp_ntz
+        description: "Última actualización de membresía."
+
+  - name: fct_artist_performance
+    description: "Tabla de hechos con métricas de participación de artistas."
+
+    columns:
+      - name: artist_performance_pk
+        data_type: varchar
+        description: "Clave primaria del hecho."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: artist_id
+        data_type: varchar
+        description: "Identificador del artista."
+
+      - name: issue_id
+        data_type: number
+        description: "Identificador del issue."
+
+      - name: role_name
+        data_type: varchar
+        description: "Rol desempeñado por el artista."
+
+      - name: total_owners
+        data_type: number
+        description: "Número total de usuarios propietarios del issue."

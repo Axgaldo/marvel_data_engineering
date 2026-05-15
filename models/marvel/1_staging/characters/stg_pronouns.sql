@@ -3,12 +3,12 @@
 with raw_pronouns as (
     select distinct 
         -- Cambiamos espacios por barras antes de limpiar
-        replace( {{ clean_text('json_data:biography.pronouns') }} , ' ', '/') as pronouns_desc
+        replace(json_data:biography.pronouns::string, ' ', '/') as pronouns_raw
     from {{ source('marvel_raw', 'raw_characters') }}
     where json_data:biography.pronouns is not null
 )
 
 select
-    {{ generate_marvel_id('pronouns_desc') }} as pronouns_id,
-    pronouns_desc
+    {{ generate_marvel_id('pronouns_raw') }} as pronouns_id,
+    {{ clean_text('pronouns_raw') }} as pronouns_desc
 from raw_pronouns

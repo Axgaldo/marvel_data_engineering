@@ -15,7 +15,7 @@ with all_entities as (
 )
 
 select distinct
-    {{ dbt_utils.generate_surrogate_key(['entity_name']) }} as multiversal_entity_id,
+    {{ generate_marvel_id("entity_name") }} as multiversal_entity_id,
     entity_name as multiversal_entity_name
 from all_entities
 where entity_name is not null

@@ -14,10 +14,14 @@ extracted as (
         -- FKs a tablas maestras (Normalización)
         {{ generate_marvel_id("json_data:biography.franchise") }} as franchise_id,
         {{ generate_marvel_id("json_data:metadata.universe") }} as universe_id,
-        {{ generate_marvel_id("json_data:biography.pronouns") }} as pronouns_id,
+        case 
+            when json_data:biography.pronouns is not null 
+            then {{ generate_marvel_id("replace(json_data:biography.pronouns::string, ' ', '/')") }}
+            else null 
+        end as pronouns_id,
         
         -- Entidad Multiversal Ancla (Coalesce para que si no tiene alter ego, el "multiversal" es su propio nombre)
-        {{ generate_marvel_id("coalesce(json_data:is_alter_ego_of.name::string, json_data:name::string)") }} as multiversal_entity_id,
+        {{ generate_marvel_id("coalesce(json_data:is_alter_ego_of.name, json_data:name)") }} as multiversal_entity_id,
 
         -- Atributos de Biografía
 

@@ -20,7 +20,9 @@ flattened as (
         
         -- Datos de Release Dates
         r.series_id,
-        r.release_date,
+        TRY_TO_DATE(
+            REGEXP_REPLACE(UPPER(release_date), '([0-9]+)(ST|ND|RD|TH),', '\\1,'), 'MON DD, YYYY'
+        ) as release_date,
         
         -- Información de Cabecera
         {{ clean_text('c.json_data:title') }} as issue_title,
@@ -45,7 +47,7 @@ flattened as (
         
         {{ clean_text('c.json_data:details.upc') }} as upc,
         {{ clean_text('c.json_data:details.sku') }} as sku,
-        {{ clean_text('c.json_data:details.cover_date') }} as cover_date_raw,
+        TRY_TO_DATE(UPPER(c.json_data:details.cover_date), 'MON YYYY') as cover_date,
         
         c.ingested_at as loaded_at
         

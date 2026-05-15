@@ -11,6 +11,7 @@ with source as (
 )
 
 select
+
     -- FK a la historia (misma lógica que la PK de stg_stories)
     {{ dbt_utils.generate_surrogate_key(['issue_id', 'story_index']) }} as story_id,
     
@@ -18,5 +19,5 @@ select
     {{ generate_marvel_id("char_json:name") }} as character_id,
     
     -- Metadato de la relación
-    char_json:type::string as appearance_type -- "Main", "Supporting", "Cameo"
+    {{ clean_text('char_json:type') }} as appearance_type -- "MAIN", "SUPPORTING", "CAMEO"
 from source

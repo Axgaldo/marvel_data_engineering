@@ -1,4 +1,5 @@
-version: 3
+
+version: 2
 
 models:
   # ==========================================
@@ -69,8 +70,8 @@ models:
         data_tests:
           - relationships:
               arguments:
-                to: ref('stg_multiversal_entities')
-                field: multiversal_entity_id
+                to: ref('stg_universes')
+                field: universe_id
 
       - name: species_id
         data_type: varchar
@@ -110,10 +111,6 @@ models:
       - name: universe_name
         data_type: varchar
         description: "Nombre denormalizado del universo."
-
-      - name: occupation
-        data_type: varchar
-        description: "Ocupación o profesión del personaje."
 
       - name: place_of_origin
         data_type: varchar
@@ -312,13 +309,19 @@ models:
                 to: ref('stg_series')
                 field: series_id
       - name: release_date
-        data_type: varchar
+        data_type: date
+        description: "Fecha de lanzamiento oficial del cómic."
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
       - name: issue_title
         data_type: varchar
       - name: cover_url
         data_type: varchar
       - name: description
         data_type: varchar
+        description: "Sinopsis o descripción del contenido del cómic."
       - name: rating_avg
         data_type: number
       - name: ratings_count
@@ -338,6 +341,11 @@ models:
         data_type: number
       - name: upc
         data_type: varchar
+      - name: sku
+        data_type: varchar
+      - name: cover_date
+        data_type: date
+        description: "Fecha de lanzamiento de la portada."
       - name: loaded_at
         data_type: timestamp_ntz
 

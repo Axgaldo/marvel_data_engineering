@@ -36,16 +36,37 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 models:
+  marvel_project: 
+    marvel:
+      # Configuración para la carpeta 1_staging (entre comillas por el número delante)
+      "1_staging":
+        +tags: ["staging"]
+        +materialized: view
+        +database: "{{ env_var('DBT_ENVIRONMENTS') }}_MARVEL_SILVER_DB"
+        +schema: STAGING
+        
+      # Configuración para la carpeta 2_marts
+      "2_marts":
+        +tags: ["marts"]
+        +materialized: table
+        +database: "{{ env_var('DBT_ENVIRONMENTS') }}_MARVEL_GOLD_DB"
+        core:
+          +schema: CORE
+        facts:
+          +schema: MARTS
+        
+snapshots:
+  marvel_project:
+    +database: "{{ env_var('DBT_ENVIRONMENTS') }}_MARVEL_GOLD_DB"
+    +target_schema: CORE
 
-  marvel:
-    # Applies to all files under models/marvel/
+data_tests:
+  marvel_project:
+    marvel:
+    
+      "1_staging":
+        +warn_if: ">0"
+        +error_if: ">1"
 
-    staging:
-      +materialized: view
-      +database: "{{ env_var('DBT_ENVIRONMENTS') }}_MARVEL_SILVER_DB" 
-      +schema: STAGING
-      
-    marts:
-      +materialized: table
-      +database: "{{ env_var('DBT_ENVIRONMENTS') }}_MARVEL_GOLD_DB"
-      +schema: MARTS
+      "2_marts":
+        +severity: warn
