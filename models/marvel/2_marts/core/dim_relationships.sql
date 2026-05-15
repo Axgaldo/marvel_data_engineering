@@ -8,5 +8,7 @@ select
     relative_id as target_character_id,
     relative_name as target_character_name,
     relationship_category as connection_type, -- Ej: FAMILY, ENEMY, ALTER_EGO
-    relationship_context as connection_detail -- Ej: Brother, Archenemy
+    relationship_context as connection_detail -- Ej: Brother, Archenemy,
+
+    loaded_at
 from relations

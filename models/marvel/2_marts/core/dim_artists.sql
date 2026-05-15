@@ -4,5 +4,6 @@ with artists as (
 
 select
     artist_id,
-    artist_name
+    artist_name,
+    loaded_at
 from artists

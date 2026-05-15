@@ -16,6 +16,8 @@ with all_entities as (
 
 select distinct
     {{ generate_marvel_id("entity_name") }} as multiversal_entity_id,
-    entity_name as multiversal_entity_name
+    entity_name as multiversal_entity_name,
+    
+    current_timestamp() as loaded_at
 from all_entities
 where entity_name is not null

@@ -10,6 +10,8 @@ with character_species_split as (
 
 select
     character_id,
-    {{ dbt_utils.generate_surrogate_key(['species_name']) }} as species_id
+    {{ dbt_utils.generate_surrogate_key(['species_name']) }} as species_id,
+    
+    current_timestamp() as loaded_at
 from character_species_split
 where species_name is not null

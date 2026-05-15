@@ -48,8 +48,8 @@ flattened as (
         {{ clean_text('c.json_data:details.upc') }} as upc,
         {{ clean_text('c.json_data:details.sku') }} as sku,
         TRY_TO_DATE(UPPER(c.json_data:details.cover_date), 'MON YYYY') as cover_date,
-        
-        c.ingested_at as loaded_at
+    
+        current_timestamp() as loaded_at
         
     from comics_source c
     left join release_dates_source r

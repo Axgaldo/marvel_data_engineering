@@ -19,5 +19,6 @@ with all_capabilities as (
 select
     {{ generate_marvel_id("capability_name") }} as capability_id,
     capability_name,
-    is_super_power
+    is_super_power,
+    current_timestamp() as loaded_at
 from all_capabilities

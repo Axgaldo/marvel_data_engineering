@@ -10,6 +10,7 @@ with raw_roles as (
 
 select
     {{ generate_marvel_id("role_name") }} as role_id,
-    role_name as role_description
+    role_name as role_description,
+    current_timestamp() as loaded_at
 from raw_roles
 where role_name is not null

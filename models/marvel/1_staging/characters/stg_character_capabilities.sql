@@ -17,5 +17,7 @@ with link_data as (
 )
 select
     character_id,
-    {{ generate_marvel_id("capability_name") }} as capability_id
+    {{ generate_marvel_id("capability_name") }} as capability_id,
+    
+    current_timestamp() as loaded_at
 from link_data

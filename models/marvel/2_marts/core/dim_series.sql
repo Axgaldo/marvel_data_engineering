@@ -17,5 +17,7 @@ select
     coalesce(end_year, 2026) - start_year as total_years_run,
     
     total_issues_expected,
-    series_url
+    series_url,
+
+    loaded_at
 from series

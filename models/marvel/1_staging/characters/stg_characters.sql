@@ -27,8 +27,6 @@ extracted as (
 
         {{ clean_text('json_data:biography.living_status') }} as living_status, --valores posibles: ALIVE, DEAD, UNDEAD
 
-        --(json_data:biography.living_status::string ilike 'Alive') as is_alive,
-
         -- Lógica de Años Activos (1940 - 2026)
         try_to_number(split_part(json_data:metadata.years_active::string, ' - ', 1)) as active_since_year,
 
@@ -40,12 +38,8 @@ extracted as (
             json_data:biography.first_appearance[0].url::string, 
             '/comic/([0-9]+)', 1, 1, 'e'
         )::int as first_appearance_issue_id,
-
-        -- BOOLEANOS PARA LA CAPA GOLD:
-        --(try_to_number(split_part(json_data:metadata.years_active::string, ' - ', 2)) = 2026) as is_currently_active,
-        --(json_data:biography.living_status::string ilike 'Alive') as is_alive,
-
-        ingested_at as loaded_at
+    
+        current_timestamp() as loaded_at
     from source
 )
 

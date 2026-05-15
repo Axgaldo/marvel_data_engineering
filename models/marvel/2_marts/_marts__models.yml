@@ -1,357 +1,692 @@
 version: 2
 
 models:
+  # ==========================================
+  # DIMENSIONES - ARTISTS
+  # ==========================================
   - name: dim_artists
     description: "Dimensión de artistas relacionados con publicaciones."
-
     columns:
       - name: artist_id
         data_type: varchar
-        description: "Identificador único del artista."
+        description: "Identificador único del artista (hash MD5)."
         data_tests:
           - not_null
           - unique
-
+      
       - name: artist_name
         data_type: varchar
-        description: "Nombre del artista."
+        description: "Nombre del artista en UPPERCASE."
         data_tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_not_be_null
 
+  # ==========================================
+  # DIMENSIONES - CHARACTERS (Principal)
+  # ==========================================
   - name: dim_characters
-    description: "Dimensión principal de personajes del universo Marvel."
-
+    description: "Dimensión principal de personajes del universo Marvel con histórico SCD2."
     columns:
       - name: character_id
-        data_type: varchar
-        description: "Identificador único del personaje."
+        data_type: number
+        description: "Identificador único del personaje (origen: API Marvel)."
         data_tests:
           - not_null
           - unique
-
+      
       - name: character_name
         data_type: varchar
         description: "Nombre del personaje."
         data_tests:
           - not_null
-
+          - dbt_expectations.expect_column_values_to_not_be_null
+      
       - name: franchise_name
         data_type: varchar
-        description: "Nombre de la franquicia asociada."
-
+        description: "Nombre de la franquicia (ej: Marvel Universe, Ultimate Universe)."
+      
       - name: universe_name
         data_type: varchar
-        description: "Nombre del universo asociado."
-
+        description: "Nombre del universo asociado (ej: Earth-616, Earth-1610)."
+      
       - name: pronouns_desc
         data_type: varchar
-        description: "Descripción de pronombres del personaje."
-
+        description: "Pronombres normalizados (ej: he/him, she/her, they/them)."
+      
       - name: multiversal_entity_name
         data_type: varchar
-        description: "Entidad multiversal asociada."
-
+        description: "Entidad multiversal para variantes del mismo personaje (ej: Peter Parker)."
+      
       - name: living_status
         data_type: varchar
-        description: "Estado vital del personaje."
+        description: "Estado vital: ALIVE, DEAD, UNDEAD."
         data_tests:
           - accepted_values:
-              arguments:
-                values: ['ALIVE', 'DEAD', 'UNDEAD']
-                quote: true
-
+              values: ['ALIVE', 'DEAD', 'UNDEAD']
+              quote: true
+      
       - name: is_alive_flag
         data_type: boolean
-        description: "Indicador booleano de si el personaje está vivo."
+        description: "Flag booleano: true si living_status = ALIVE."
         data_tests:
           - not_null
-
+          - dbt_expectations.expect_column_values_to_be_in:
+              value_set: [true, false]
+      
       - name: active_since_year
         data_type: number
-        description: "Año desde el cual el personaje está activo."
-
+        description: "Año de primera aparición del personaje."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1939
+              max_value: 2026
+      
       - name: last_active_year
         data_type: number
-        description: "Último año de actividad registrado."
-
+        description: "Último año registrado de actividad (NULL si activo)."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1939
+              max_value: 2026
+      
       - name: is_currently_active
         data_type: boolean
-        description: "Indica si el personaje continúa activo."
-
+        description: "True si el personaje continúa activo en 2026."
+        data_tests:
+          - not_null
+      
       - name: first_appearance_name
         data_type: varchar
-        description: "Nombre de la primera aparición."
-
+        description: "Nombre del cómic de debut."
+      
       - name: first_appearance_issue_id
         data_type: number
-        description: "Identificador del issue de primera aparición."
-
+        description: "ID del cómic de primera aparición."
+      
       - name: image_url
         data_type: varchar
-        description: "URL de la imagen del personaje."
-
+        description: "URL oficial de la imagen del personaje."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: "^https?://"
+      
       - name: species_list
         data_type: varchar
-        description: "Listado de especies asociadas al personaje."
-
+        description: "Lista agregada de especies (separadas por coma)."
+      
       - name: record_valid_from
         data_type: timestamp_ntz
-        description: "Fecha de inicio de validez del registro."
-
+        description: "Fecha de inicio de validez (SCD2)."
+        data_tests:
+          - not_null
+      
       - name: last_version_update
         data_type: timestamp_ntz
-        description: "Última actualización del registro."
+        description: "Timestamp de última actualización del snapshot."
 
+  # ==========================================
+  # DIMENSIONES - DATE
+  # ==========================================
   - name: dim_date
-    description: "Dimensión calendario."
-
+    description: "Dimensión calendario de 1939 a 2036 con eras editoriales de Marvel."
     columns:
       - name: date_id
         data_type: date
-        description: "Fecha única."
+        description: "Fecha única (PK)."
         data_tests:
           - not_null
           - unique
-
+      
       - name: year
         data_type: number
-        description: "Año calendario."
-
+        description: "Año (1939-2036)."
+        data_tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1939
+              max_value: 2036
+      
       - name: month
         data_type: number
-        description: "Mes calendario."
+        description: "Mes (1-12)."
         data_tests:
+          - not_null
           - accepted_values:
-              arguments:
-                values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      
       - name: day
         data_type: number
-        description: "Día del mes."
-
+        description: "Día del mes (1-31)."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              max_value: 31
+      
       - name: quarter
         data_type: number
-        description: "Trimestre del año."
+        description: "Trimestre (1-4)."
         data_tests:
           - accepted_values:
-              arguments:
-                values: [1,2,3,4]
-
+              values: [1, 2, 3, 4]
+      
       - name: month_name
         data_type: varchar
-        description: "Nombre del mes."
-
+        description: "Nombre del mes en inglés."
+      
       - name: day_name
         data_type: varchar
-        description: "Nombre del día."
-
+        description: "Nombre del día en inglés."
+      
       - name: marvel_era
         data_type: varchar
-        description: "Era editorial Marvel asociada."
+        description: "Era editorial de Marvel (Golden Age, Silver Age, Bronze Age, Modern Age)."
+        data_tests:
+          - accepted_values:
+              values: ['Golden Age', 'Silver Age', 'Bronze Age', 'Modern Age', 'Other']
 
+  # ==========================================
+  # DIMENSIONES - ISSUES
+  # ==========================================
   - name: dim_issues
-    description: "Dimensión de publicaciones e issues."
-
+    description: "Dimensión de publicaciones (issues/comics)."
     columns:
       - name: issue_id
         data_type: number
-        description: "Identificador único del issue."
+        description: "Identificador único del issue (PK)."
         data_tests:
           - not_null
           - unique
-
+      
       - name: issue_title
         data_type: varchar
         description: "Título del issue."
-
+        data_tests:
+          - not_null
+      
       - name: issue_url
         data_type: varchar
         description: "URL oficial del issue."
-
+      
       - name: cover_url
         data_type: varchar
         description: "URL de la portada."
-
+      
       - name: description
         data_type: varchar
-        description: "Descripción del issue."
-
+        description: "Sinopsis del contenido."
+      
       - name: num_user_owns
         data_type: number
-        description: "Número de usuarios que poseen el issue."
-
+        description: "Cantidad de usuarios que poseen el issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
       - name: num_user_reads
         data_type: number
-        description: "Número de usuarios que han leído el issue."
-
+        description: "Cantidad de usuarios que lo han leído."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
       - name: num_user_wishes
         data_type: number
-        description: "Número de usuarios que desean el issue."
-
+        description: "Cantidad de usuarios que lo desean."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
       - name: release_date
         data_type: date
-        description: "Fecha de lanzamiento."
-
+        description: "Fecha oficial de lanzamiento."
+      
       - name: cover_date
         data_type: date
-        description: "Fecha de portada."
-
+        description: "Fecha de portada (puede diferir del lanzamiento)."
+      
       - name: num_pages
         data_type: number
         description: "Número de páginas."
-
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      
       - name: price_dollars
         data_type: number
-        description: "Precio en dólares."
-
+        description: "Precio en USD."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
       - name: series_title
         data_type: varchar
-        description: "Título de la serie."
-
+        description: "Título de la serie a la que pertenece."
+        data_tests:
+          - not_null
+      
       - name: format_name
         data_type: varchar
-        description: "Formato editorial."
-
+        description: "Formato editorial (Comic, Hardcover, Trade Paperback, etc)."
+      
       - name: sku
         data_type: varchar
         description: "SKU comercial."
-
+      
       - name: upc
         data_type: varchar
-        description: "Código UPC."
+        description: "Código de barras UPC."
 
+  # ==========================================
+  # DIMENSIONES - RELATIONSHIPS
+  # ==========================================
   - name: dim_relationships
-    description: "Dimensión de relaciones entre personajes."
-
+    description: "Dimensión de relaciones entre personajes (padre-hijo, enemigos, etc)."
     columns:
       - name: relationship_key
         data_type: varchar
-        description: "Clave única de relación."
+        description: "Clave única de la relación (hash)."
         data_tests:
           - not_null
           - unique
-
+      
       - name: source_character_id
         data_type: number
-        description: "Personaje origen de la relación."
-
+        description: "ID del personaje de origen."
+        data_tests:
+          - not_null
+      
       - name: target_character_id
         data_type: number
-        description: "Personaje destino de la relación."
-
+        description: "ID del personaje destino."
+        data_tests:
+          - not_null
+      
       - name: target_character_name
         data_type: varchar
         description: "Nombre del personaje destino."
-
+      
       - name: connection_type
         data_type: varchar
-        description: "Tipo de relación."
-
+        description: "Tipo de relación (FAMILY, ENEMY, ALLY, RIVAL, etc)."
+      
       - name: connection_detail
         data_type: varchar
-        description: "Detalle descriptivo de la relación."
+        description: "Descripción detallada de la relación."
 
+  # ==========================================
+  # DIMENSIONES - SERIES
+  # ==========================================
   - name: dim_series
-    description: "Dimensión de series editoriales."
-
+    description: "Dimensión de series editoriales de Marvel."
     columns:
       - name: series_id
         data_type: number
-        description: "Identificador único de la serie."
+        description: "Identificador único de la serie (PK)."
         data_tests:
           - not_null
           - unique
-
+      
       - name: series_title
         data_type: varchar
         description: "Título de la serie."
-
+        data_tests:
+          - not_null
+      
       - name: start_year
         data_type: number
-        description: "Año de inicio."
-
+        description: "Año de inicio de la serie."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1939
+      
       - name: end_year
         data_type: number
-        description: "Año de finalización."
-
+        description: "Año de término (NULL si activa)."
+      
       - name: series_status
         data_type: varchar
-        description: "Estado actual de la serie."
-
+        description: "Estado: ONGOING, COMPLETED, ON HIATUS."
+        data_tests:
+          - accepted_values:
+              values: ['ONGOING', 'COMPLETED', 'ON HIATUS']
+              quote: true
+      
       - name: total_years_run
         data_type: number
-        description: "Cantidad total de años publicados."
-
+        description: "Cantidad de años que ha estado activa."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
       - name: total_issues_expected
         data_type: number
-        description: "Número esperado de issues."
-
+        description: "Número de issues planeados o publicados."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      
       - name: series_url
         data_type: varchar
         description: "URL oficial de la serie."
 
+  # ==========================================
+  # DIMENSIONES - TEAMS
+  # ==========================================
   - name: dim_teams
-    description: "Dimensión de afiliaciones de personajes a equipos."
-
+    description: "Dimensión de membresías de personajes en equipos (con histórico SCD2)."
     columns:
       - name: membership_key
         data_type: varchar
-        description: "Clave única de membresía."
+        description: "Clave única de membresía (hash)."
         data_tests:
           - not_null
           - unique
-
+      
       - name: character_id
         data_type: number
-        description: "Identificador del personaje."
-
+        description: "ID del personaje."
+        data_tests:
+          - not_null
+      
       - name: team_id
         data_type: varchar
-        description: "Identificador del equipo."
-
+        description: "ID del equipo."
+        data_tests:
+          - not_null
+      
       - name: character_name
         data_type: varchar
         description: "Nombre del personaje."
-
+        data_tests:
+          - not_null
+      
       - name: team_name
         data_type: varchar
         description: "Nombre del equipo."
-
+        data_tests:
+          - not_null
+      
       - name: is_active_member
         data_type: boolean
-        description: "Indica si la membresía está activa."
-
+        description: "¿Es miembro activo actual?"
+        data_tests:
+          - not_null
+      
       - name: joined_at_timestamp
         data_type: timestamp_ntz
         description: "Fecha de incorporación al equipo."
-
+      
       - name: last_membership_update
         data_type: timestamp_ntz
-        description: "Última actualización de membresía."
+        description: "Último timestamp de cambio de estado."
 
+  # ==========================================
+  # FACT TABLES - ARTIST PERFORMANCE
+  # ==========================================
   - name: fct_artist_performance
-    description: "Tabla de hechos con métricas de participación de artistas."
-
+    description: "Tabla de hechos incremental con participación de artistas por issue."
     columns:
       - name: artist_performance_pk
         data_type: varchar
-        description: "Clave primaria del hecho."
+        description: "Clave primaria (hash de artist_id + issue_id + role_name)."
         data_tests:
           - not_null
           - unique
-
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: "^[a-f0-9]{32}$"  # MD5
+      
       - name: artist_id
         data_type: varchar
-        description: "Identificador del artista."
-
+        description: "FK a dim_artists."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_artists')
+              field: artist_id
+      
       - name: issue_id
         data_type: number
-        description: "Identificador del issue."
-
+        description: "FK a dim_issues."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_issues')
+              field: issue_id
+      
       - name: role_name
         data_type: varchar
-        description: "Rol desempeñado por el artista."
-
+        description: "Rol desempeñado (WRITER, ARTIST, COLORIST, etc)."
+        data_tests:
+          - not_null
+      
       - name: total_owners
         data_type: number
-        description: "Número total de usuarios propietarios del issue."
+        description: "Usuarios que poseen el issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: total_readers
+        data_type: number
+        description: "Usuarios que han leído el issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: total_wishers
+        data_type: number
+        description: "Usuarios que desean el issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: issue_rating
+        data_type: number
+        description: "Calificación promedio del issue (0-10)."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 10
+      
+      - name: price_dollars
+        data_type: number
+        description: "Precio del issue en USD."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: num_pages
+        data_type: number
+        description: "Número de páginas del issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      
+      - name: estimated_market_revenue
+        data_type: number
+        description: "Ingresos estimados = price * num_user_owns."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: quality_per_page_ratio
+        data_type: number
+        description: "Calificación / páginas (métrica de densidad de valor)."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: artist_impact_score
+        data_type: number
+        description: "Score ponderado: reads*0.7 + owns*0.3."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: release_date
+        data_type: date
+        description: "Fecha de lanzamiento del issue."
+      
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Timestamp de carga del registro (para incrementalidad)."
+        data_tests:
+          - not_null
+
+  # ==========================================
+  # FACT TABLES - CHARACTER ENGAGEMENT
+  # ==========================================
+  - name: fct_character_engagement
+    description: "Tabla de hechos incremental con aparición de personajes por issue."
+    columns:
+      - name: engagement_pk
+        data_type: varchar
+        description: "Clave primaria (hash de character_id + issue_id)."
+        data_tests:
+          - not_null
+          - unique
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: "^[a-f0-9]{32}$"
+      
+      - name: character_id
+        data_type: number
+        description: "FK a dim_characters."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_characters')
+              field: character_id
+      
+      - name: issue_id
+        data_type: number
+        description: "FK a dim_issues."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_issues')
+              field: issue_id
+      
+      - name: series_id
+        data_type: number
+        description: "FK a dim_series."
+        data_tests:
+          - not_null
+      
+      - name: appearance_type
+        data_type: varchar
+        description: "Tipo de aparición (PRIMARY, SUPPORTING, CAMEO)."
+        data_tests:
+          - accepted_values:
+              values: ['PRIMARY', 'SUPPORTING', 'CAMEO']
+              quote: true
+      
+      - name: rating_avg
+        data_type: number
+        description: "Calificación promedio del issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 10
+      
+      - name: ratings_count
+        data_type: number
+        description: "Cantidad de calificaciones."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: num_user_owns
+        data_type: number
+        description: "Usuarios propietarios del issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: num_user_reads
+        data_type: number
+        description: "Usuarios que leyeron el issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: num_user_wishes
+        data_type: number
+        description: "Usuarios que desean el issue."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: engagement_index
+        data_type: number
+        description: "Índice de engagement = reads*0.5 + owns*0.3 + wishes*0.2."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: weighted_engagement_score
+        data_type: number
+        description: "Score ponderado según tipo de aparición."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: release_date
+        data_type: date
+        description: "Fecha de lanzamiento del issue."
+      
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Timestamp de carga (para incrementalidad)."
+        data_tests:
+          - not_null
+
+  # ==========================================
+  # FACT TABLES - MULTIVERSAL CROSSOVERS
+  # ==========================================
+  - name: fct_multiversal_crossovers
+    description: "Tabla de hechos incremental con eventos multiversales."
+    columns:
+      - name: issue_id
+        data_type: number
+        description: "Identificador único del issue (PK para esta tabla)."
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('dim_issues')
+              field: issue_id
+      
+      - name: total_characters_present
+        data_type: number
+        description: "Cantidad de personajes distintos en el issue."
+        data_tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      
+      - name: total_universes_involved
+        data_type: number
+        description: "Cantidad de universos representados."
+        data_tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      
+      - name: is_multiversal_event
+        data_type: boolean
+        description: "True si hay más de 1 universo involucrado."
+        data_tests:
+          - not_null
+      
+      - name: story_complexity_index
+        data_type: number
+        description: "Métrica: total_characters * total_universes."
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Timestamp de carga (para incrementalidad)."
+        data_tests:
+          - not_null

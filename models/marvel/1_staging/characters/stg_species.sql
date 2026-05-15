@@ -10,6 +10,8 @@ with split_species as (
 
 select distinct
     {{ generate_marvel_id('species_name_raw') }} as species_id,
-    {{ clean_text('species_name_raw') }} as species_name
+    {{ clean_text('species_name_raw') }} as species_name,
+    
+    current_timestamp() as loaded_at
 from split_species
 where species_name is not null

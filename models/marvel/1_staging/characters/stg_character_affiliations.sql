@@ -13,7 +13,9 @@ select
     {{ generate_marvel_id("team.value:name::string") }} as team_id,
     
     -- Si la llave contiene 'current', es True. Si no, False.
-    (f.key ilike '%current%') as is_current
+    (f.key ilike '%current%') as is_current,
+    
+    current_timestamp() as loaded_at
 from source,
 lateral flatten(input => aff_json) f,
 lateral flatten(input => f.value) team

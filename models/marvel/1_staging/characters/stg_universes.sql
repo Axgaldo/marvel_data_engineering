@@ -8,5 +8,7 @@ with source as (
 
 select
     {{ generate_marvel_id('universe_name_raw') }} as universe_id,
-    {{ clean_text('universe_name_raw' ) }} as universe_name
+    {{ clean_text('universe_name_raw' ) }} as universe_name,
+    
+    current_timestamp() as loaded_at
 from source

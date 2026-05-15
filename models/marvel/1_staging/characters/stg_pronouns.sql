@@ -10,5 +10,7 @@ with raw_pronouns as (
 
 select
     {{ generate_marvel_id('pronouns_raw') }} as pronouns_id,
-    {{ clean_text('pronouns_raw') }} as pronouns_desc
+    {{ clean_text('pronouns_raw') }} as pronouns_desc,
+    
+    current_timestamp() as loaded_at
 from raw_pronouns

@@ -64,4 +64,4 @@ inner join stories as s
 inner join story_characters as sc 
     on s.story_id = sc.story_id
 inner join characters_master as c 
-    on sc.character_id = c.character_id::string
+    on sc.character_id = c.character_id
