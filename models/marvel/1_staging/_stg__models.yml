@@ -1,0 +1,396 @@
+
+version: 2
+
+models:
+  # ==========================================
+  # ARTISTS & ROLES
+  # ==========================================
+  - name: stg_artists
+    description: "Maestro de artistas y creadores únicos (escritores, dibujantes, etc.)."
+    columns:
+      - name: artist_id
+        data_type: varchar
+        description: "PK generada por hash basada en el nombre del artista."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: artist_name
+        data_type: varchar
+        description: "Nombre completo del creador en UPPERCASE."
+
+  - name: stg_roles
+    description: "Diccionario de roles creativos para normalización."
+    columns:
+      - name: role_id
+        data_type: varchar
+        description: "PK generada por hash basada en el nombre del rol."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: role_description
+        data_type: varchar
+        description: "Nombre del rol (ej: WRITER, ARTIST, COLORIST)."
+
+  # ==========================================
+  # CHARACTERS
+  # ==========================================
+  - name: stg_characters
+    description: "Tabla principal de personajes (dimensión character)."
+    columns:
+      - name: character_id
+        data_type: number
+        description: "ID único del personaje proveniente de la fuente original."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: character_name
+        data_type: varchar
+        description: "Nombre o alter-ego del personaje."
+
+      - name: image_url
+        data_type: varchar
+        description: "URL de la imagen oficial del personaje."
+
+      - name: franchise_id
+        data_type: varchar
+        description: "FK a la tabla de franquicias."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_franchises')
+                field: franchise_id
+
+      - name: universe_id
+        data_type: varchar
+        description: "FK a la entidad multiversal que representa su universo."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_universes')
+                field: universe_id
+
+      - name: species_id
+        data_type: varchar
+        description: "FK a la especie principal (obsoleto si se usa stg_character_species)."
+
+      - name: pronouns_id
+        data_type: varchar
+        description: "FK a la tabla de pronombres."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_pronouns')
+                field: pronouns_id
+
+      - name: multiversal_entity_id
+        data_type: varchar
+        description: "ID de agrupación para variantes del mismo personaje."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_multiversal_entities')
+                field: multiversal_entity_id
+
+      - name: living_status
+        data_type: varchar
+        description: "Estado vital (ALIVE, DEAD, UNDEAD)."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ALIVE', 'DEAD', 'UNDEAD']
+                quote: true
+
+      - name: franchise_name
+        data_type: varchar
+        description: "Nombre denormalizado de la franquicia."
+
+      - name: universe_name
+        data_type: varchar
+        description: "Nombre denormalizado del universo."
+
+      - name: place_of_origin
+        data_type: varchar
+        description: "Lugar de nacimiento o procedencia."
+
+      - name: active_since_year
+        data_type: number
+        description: "Año de primera aparición."
+
+      - name: active_until_year
+        data_type: number
+        description: "Año de desaparición o fin de actividad."
+
+      - name: first_appearance_name
+        data_type: varchar
+        description: "Nombre del cómic de debut."
+
+      - name: first_appearance_issue_id
+        data_type: number
+        description: "ID del cómic de debut."
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga en Snowflake."
+
+  # ==========================================
+  # SPECIES & PRONOUNS
+  # ==========================================
+  - name: stg_character_species
+    description: "Tabla bridge para personajes con múltiples especies."
+    columns:
+      - name: character_id
+        data_type: number
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_characters')
+                field: character_id
+
+      - name: species_id
+        data_type: varchar
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_species')
+                field: species_id
+
+  - name: stg_species
+    description: "Maestro de especies."
+    columns:
+      - name: species_id
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
+
+      - name: species_name
+        data_type: varchar
+
+  - name: stg_pronouns
+    description: "Maestro de pronombres normalizados (separados por barra /)."
+    columns:
+      - name: pronouns_id
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
+
+      - name: pronouns_desc
+        data_type: varchar
+
+  # ==========================================
+  # ENTITIES, FRANCHISES & TEAMS
+  # ==========================================
+  - name: stg_multiversal_entities
+    columns:
+      - name: multiversal_entity_id
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
+      - name: multiversal_entity_name
+        data_type: varchar
+
+  - name: stg_franchises
+    columns:
+      - name: franchise_id
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
+      - name: franchise_name
+        data_type: varchar
+
+  - name: stg_teams
+    columns:
+      - name: team_id
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
+      - name: team_name
+        data_type: varchar
+
+  - name: stg_character_affiliations
+    description: "Relación personajes y equipos."
+    columns:
+      - name: character_id
+        data_type: number
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_characters')
+                field: character_id
+      - name: team_id
+        data_type: varchar
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_teams')
+                field: team_id
+      - name: is_current
+        data_type: boolean
+        data_tests:
+          - not_null
+
+  - name: stg_character_creators
+    columns:
+      - name: character_id
+        data_type: number
+      - name: artist_id
+        data_type: varchar
+
+  - name: stg_character_relationships
+    columns:
+      - name: character_id
+        data_type: number
+      - name: relationship_category
+        data_type: varchar
+      - name: relative_id
+        data_type: number
+      - name: relative_name
+        data_type: varchar
+      - name: relationship_context
+        data_type: varchar
+
+  # ==========================================
+  # ISSUES & SERIES
+  # ==========================================
+  - name: stg_series
+    columns:
+      - name: series_id
+        data_type: number
+        data_tests:
+          - unique
+          - not_null
+      - name: series_title
+        data_type: varchar
+      - name: start_year
+        data_type: number
+      - name: end_year
+        data_type: number
+      - name: total_issues_expected
+        data_type: number
+      - name: series_url
+        data_type: varchar
+      - name: loaded_at
+        data_type: timestamp_ntz
+
+  - name: stg_formats
+    columns:
+      - name: format_id
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
+      - name: format_name
+        data_type: varchar
+
+  - name: stg_issues
+    columns:
+      - name: issue_id
+        data_type: number
+        data_tests:
+          - unique
+          - not_null
+      - name: issue_url
+        data_type: varchar
+      - name: series_id
+        data_type: number
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_series')
+                field: series_id
+      - name: release_date
+        data_type: date
+        description: "Fecha de lanzamiento oficial del cómic."
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: issue_title
+        data_type: varchar
+      - name: cover_url
+        data_type: varchar
+      - name: description
+        data_type: varchar
+        description: "Sinopsis o descripción del contenido del cómic."
+      - name: rating_avg
+        data_type: number
+      - name: ratings_count
+        data_type: number
+      - name: num_user_owns
+        data_type: number
+      - name: format_id
+        data_type: varchar
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_formats')
+                field: format_id
+      - name: num_pages
+        data_type: number
+      - name: price_dollars
+        data_type: number
+      - name: upc
+        data_type: varchar
+      - name: sku
+        data_type: varchar
+      - name: cover_date
+        data_type: date
+        description: "Fecha de lanzamiento de la portada."
+      - name: loaded_at
+        data_type: timestamp_ntz
+
+  # ==========================================
+  # STORIES
+  # ==========================================
+  - name: stg_stories
+    columns:
+      - name: story_id
+        data_type: varchar
+        data_tests:
+          - unique
+          - not_null
+      - name: issue_id
+        data_type: number
+      - name: story_index
+        data_type: number
+      - name: story_title
+        data_type: varchar
+      - name: story_pages
+        data_type: number
+
+  - name: stg_story_characters
+    columns:
+      - name: story_id
+        data_type: varchar
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_stories')
+                field: story_id
+      - name: character_id
+        data_type: varchar
+      - name: appearance_type
+        data_type: varchar
+
+  - name: stg_story_artists
+    columns:
+      - name: story_id
+        data_type: varchar
+      - name: artist_id
+        data_type: varchar
+      - name: role_id
+        data_type: varchar
+      - name: artist_name
+        data_type: varchar
+      - name: role_name
+        data_type: varchar
