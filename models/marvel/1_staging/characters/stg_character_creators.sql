@@ -10,6 +10,8 @@ with creators_flat as (
 
 select
     character_id,
-    {{ generate_marvel_id("creator_name") }} as artist_id
+    {{ generate_marvel_id("creator_name") }} as artist_id,
+    
+    current_timestamp() as loaded_at
 from creators_flat
 where creator_name is not null

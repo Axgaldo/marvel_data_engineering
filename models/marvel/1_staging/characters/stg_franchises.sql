@@ -8,5 +8,7 @@ with source as (
 
 select
     {{ dbt_utils.generate_surrogate_key(['franchise_name']) }} as franchise_id,
-    franchise_name
+    franchise_name,
+    
+    current_timestamp() as loaded_at
 from source

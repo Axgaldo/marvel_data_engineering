@@ -15,9 +15,15 @@ select
     -- FK a la historia (misma lógica que la PK de stg_stories)
     {{ dbt_utils.generate_surrogate_key(['issue_id', 'story_index']) }} as story_id,
     
-    -- FK al personaje (usamos la macro porque es por nombre/entidad)
-    {{ generate_marvel_id("char_json:name") }} as character_id,
+    -- FK al personaje: EXTRAER EL ID DE LA URL
+    regexp_substr(
+        char_json:url::string, 
+        '/character/([0-9]+)', 
+        1, 1, 'e'
+    )::int as character_id,
     
     -- Metadato de la relación
-    {{ clean_text('char_json:type') }} as appearance_type -- "MAIN", "SUPPORTING", "CAMEO"
+    {{ clean_text('char_json:type') }} as appearance_type, -- "MAIN", "SUPPORTING", "CAMEO"
+    
+    current_timestamp() as loaded_at
 from source

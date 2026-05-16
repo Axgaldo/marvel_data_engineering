@@ -9,6 +9,8 @@ with source as (
 select
     -- La macro se encarga de la limpieza y el ID único
     {{ generate_marvel_id('format_name') }} as format_id,
-    format_name
+    format_name,
+    
+    current_timestamp() as loaded_at
 from source
 where format_name is not null

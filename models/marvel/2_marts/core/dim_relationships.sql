@@ -1,12 +1,15 @@
-with relations as (
-    select * from {{ ref('stg_character_relationships') }}
+with current_relationships as (
+    select * from {{ ref('snp_character_relationships') }}
+    where dbt_valid_to is null
 )
 
 select
-    {{ dbt_utils.generate_surrogate_key(['character_id', 'relative_id', 'relationship_category']) }} as relationship_key,
-    character_id as source_character_id,
-    relative_id as target_character_id,
-    relative_name as target_character_name,
-    relationship_category as connection_type, -- Ej: FAMILY, ENEMY, ALTER_EGO
-    relationship_context as connection_detail -- Ej: Brother, Archenemy
-from relations
+    {{ dbt_utils.generate_surrogate_key(['r.character_id', 'r.relative_id', 'r.relationship_context']) }} as relationship_key,
+    r.character_id as source_character_id,
+    r.relative_id as target_character_id,
+    r.relative_name as target_character_name,
+    r.relationship_context as connection_detail,
+    -- Metadatos SCD2
+    r.dbt_valid_from as record_valid_from,
+    r.dbt_updated_at as last_version_update
+from current_relationships r

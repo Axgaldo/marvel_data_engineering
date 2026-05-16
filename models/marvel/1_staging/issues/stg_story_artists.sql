@@ -25,6 +25,8 @@ select
     {{ dbt_utils.generate_surrogate_key(['role_name']) }} as role_id,
 
     artist_name,
-    role_name
+    role_name,
+    
+    current_timestamp() as loaded_at
 from expanded_roles
 where artist_name is not null

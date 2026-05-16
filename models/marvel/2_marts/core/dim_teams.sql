@@ -18,7 +18,9 @@ select
     m.is_current as is_active_member,
     -- Metadatos SCD2
     m.dbt_valid_from as joined_at_timestamp,
-    m.dbt_updated_at as last_membership_update
+    m.dbt_updated_at as last_membership_update,
+
+    m.loaded_at
 from current_memberships m
 left join teams_master t on m.team_id = t.team_id
 left join characters_master c on m.character_id = c.character_id

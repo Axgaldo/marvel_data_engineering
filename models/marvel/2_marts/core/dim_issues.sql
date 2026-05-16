@@ -1,4 +1,8 @@
 
+with current_issues as (
+    select * from {{ ref('snp_issues') }}
+    where dbt_valid_to is null 
+)
 select
     i.issue_id,
     i.issue_title,
@@ -15,7 +19,12 @@ select
     s.series_title,
     f.format_name,
     i.sku,
-    i.upc
-from {{ ref('stg_issues') }} i
+    i.upc,
+    
+    i.loaded_at,
+
+    i.dbt_valid_from as record_valid_from,
+    i.dbt_updated_at as last_version_update
+from current_issues i
 left join {{ ref('stg_series') }} s on i.series_id = s.series_id
 left join {{ ref('stg_formats') }} f on i.format_id = f.format_id

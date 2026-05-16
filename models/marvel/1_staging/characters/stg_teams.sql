@@ -17,6 +17,8 @@ flattened_teams as (
 select
     -- La macro genera el mismo ID que en la tabla de afiliaciones
     {{ generate_marvel_id("team_name") }} as team_id,
-    team_name
+    team_name,
+    
+    current_timestamp() as loaded_at
 from flattened_teams
 where team_name is not null

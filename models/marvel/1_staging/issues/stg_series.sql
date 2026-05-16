@@ -12,5 +12,6 @@ select
     json_data:end_year::int as end_year,
     json_data:issue_count::int as total_issues_expected,
     json_data:series_url::string as series_url,
-    ingested_at as loaded_at
+    
+    current_timestamp() as loaded_at
 from source

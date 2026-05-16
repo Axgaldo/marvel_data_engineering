@@ -14,5 +14,7 @@ select
     issue_id,
     story_index,
     {{ clean_text('story_json:title') }} as story_title,
-    try_to_number(story_json:pages::string) as story_pages
+    try_to_number(story_json:pages::string) as story_pages,
+    
+    current_timestamp() as loaded_at
 from source

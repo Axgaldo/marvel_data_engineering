@@ -19,6 +19,10 @@ models:
         data_type: varchar
         description: "Nombre completo del creador en UPPERCASE."
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_roles
     description: "Diccionario de roles creativos para normalización."
     columns:
@@ -32,6 +36,10 @@ models:
       - name: role_description
         data_type: varchar
         description: "Nombre del rol (ej: WRITER, ARTIST, COLORIST)."
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
 
   # ==========================================
   # CHARACTERS
@@ -104,18 +112,6 @@ models:
                 values: ['ALIVE', 'DEAD', 'UNDEAD']
                 quote: true
 
-      - name: franchise_name
-        data_type: varchar
-        description: "Nombre denormalizado de la franquicia."
-
-      - name: universe_name
-        data_type: varchar
-        description: "Nombre denormalizado del universo."
-
-      - name: place_of_origin
-        data_type: varchar
-        description: "Lugar de nacimiento o procedencia."
-
       - name: active_since_year
         data_type: number
         description: "Año de primera aparición."
@@ -134,7 +130,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga en Snowflake."
+        description: "Fecha de carga a staging."
 
   # ==========================================
   # SPECIES & PRONOUNS
@@ -160,6 +156,10 @@ models:
                 to: ref('stg_species')
                 field: species_id
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_species
     description: "Maestro de especies."
     columns:
@@ -172,6 +172,10 @@ models:
       - name: species_name
         data_type: varchar
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_pronouns
     description: "Maestro de pronombres normalizados (separados por barra /)."
     columns:
@@ -183,6 +187,10 @@ models:
 
       - name: pronouns_desc
         data_type: varchar
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
 
   # ==========================================
   # ENTITIES, FRANCHISES & TEAMS
@@ -197,6 +205,10 @@ models:
       - name: multiversal_entity_name
         data_type: varchar
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_franchises
     columns:
       - name: franchise_id
@@ -207,6 +219,10 @@ models:
       - name: franchise_name
         data_type: varchar
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_teams
     columns:
       - name: team_id
@@ -216,6 +232,10 @@ models:
           - not_null
       - name: team_name
         data_type: varchar
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
 
   - name: stg_character_affiliations
     description: "Relación personajes y equipos."
@@ -239,12 +259,21 @@ models:
         data_tests:
           - not_null
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_character_creators
     columns:
       - name: character_id
         data_type: number
+
       - name: artist_id
         data_type: varchar
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
 
   - name: stg_character_relationships
     columns:
@@ -258,6 +287,10 @@ models:
         data_type: varchar
       - name: relationship_context
         data_type: varchar
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
 
   # ==========================================
   # ISSUES & SERIES
@@ -282,6 +315,10 @@ models:
       - name: loaded_at
         data_type: timestamp_ntz
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_formats
     columns:
       - name: format_id
@@ -291,6 +328,10 @@ models:
           - not_null
       - name: format_name
         data_type: varchar
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
 
   - name: stg_issues
     columns:
@@ -346,8 +387,10 @@ models:
       - name: cover_date
         data_type: date
         description: "Fecha de lanzamiento de la portada."
+
       - name: loaded_at
         data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
 
   # ==========================================
   # STORIES
@@ -368,6 +411,10 @@ models:
       - name: story_pages
         data_type: number
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_story_characters
     columns:
       - name: story_id
@@ -382,6 +429,10 @@ models:
       - name: appearance_type
         data_type: varchar
 
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
+
   - name: stg_story_artists
     columns:
       - name: story_id
@@ -394,3 +445,7 @@ models:
         data_type: varchar
       - name: role_name
         data_type: varchar
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha de carga a staging."
