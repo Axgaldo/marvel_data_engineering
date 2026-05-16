@@ -2,7 +2,7 @@
 
 {{
     config(
-      unique_key='character_id || relationship_category || relative_id',
+      unique_key="character_id || '-' || relative_id || '-' || relationship_context",
       strategy='timestamp',
       updated_at='loaded_at',
       invalidate_hard_deletes=True

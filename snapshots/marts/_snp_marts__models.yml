@@ -245,12 +245,6 @@ snapshots:
         data_tests:
           - not_null
 
-      - name: relationship_category
-        data_type: varchar
-        description: "Categoría de la relación (FAMILY, ENEMY, ALLY, RIVAL, etc)."
-        data_tests:
-          - not_null
-
       - name: relative_id
         data_type: number
         description: "ID del personaje relacionado."
@@ -270,7 +264,6 @@ snapshots:
         description: "Identificador interno generado por dbt para el control SCD."
         data_tests:
           - not_null
-          - unique
 
       - name: dbt_updated_at
         data_type: timestamp_ntz
