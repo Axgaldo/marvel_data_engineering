@@ -31,11 +31,11 @@ select
     c.image_url,
     coalesce(sp.species_list, 'UNKNOWN') as species_list,
 
-    c.loaded_at,
-
     -- Metadatos SCD2
     c.dbt_valid_from as record_valid_from,
-    c.dbt_updated_at as last_version_update
+    c.dbt_updated_at as last_version_update,
+
+    c.loaded_at
 
 from current_chars c
 -- CORRECCIÓN: c.franchise_id en lugar de c.character_id para el join de franquicias

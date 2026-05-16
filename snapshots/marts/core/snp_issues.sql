@@ -1,4 +1,4 @@
-{% snapshot snp_character_affiliations %}
+{% snapshot snp_issues %}
 
 {{
     config(
@@ -9,6 +9,6 @@
     )
 }}
 
-select * from {{ ref('stg_character_affiliations') }}
+select * from {{ ref('stg_issues') }}
 
 {% endsnapshot %}

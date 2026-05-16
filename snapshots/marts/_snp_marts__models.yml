@@ -2,7 +2,7 @@ version: 2
 
 snapshots:
   - name: snp_character_affiliations
-    description: "Snapshot SCD2 que almacena el histórico de afiliaciones de personajes a equipos."
+    description: "Snapshot SCD2 que almacena el histórico de afiliaciones de personajes a equipos (cambios en membresía)."
 
     columns:
       - name: character_id
@@ -42,10 +42,10 @@ snapshots:
 
       - name: dbt_valid_to
         data_type: timestamp_ntz
-        description: "Fecha de fin de validez del registro snapshot."
+        description: "Fecha de fin de validez del registro snapshot (NULL si activo)."
 
   - name: snp_characters
-    description: "Snapshot SCD2 que almacena el histórico de atributos de personajes."
+    description: "Snapshot SCD2 que almacena el histórico de atributos de personajes (cambios en datos personales)."
 
     columns:
       - name: character_id
@@ -78,11 +78,11 @@ snapshots:
 
       - name: multiversal_entity_id
         data_type: varchar
-        description: "Identificador multiversal asociado al personaje."
+        description: "Identificador multiversal asociado al personaje (agrupa variantes)."
 
       - name: living_status
         data_type: varchar
-        description: "Estado vital del personaje."
+        description: "Estado vital del personaje: ALIVE, DEAD, UNDEAD."
         data_tests:
           - accepted_values:
               arguments:
@@ -91,11 +91,11 @@ snapshots:
 
       - name: active_since_year
         data_type: number
-        description: "Año desde el cual el personaje aparece activo."
+        description: "Año desde el cual el personaje aparece activo en Marvel."
 
       - name: active_until_year
         data_type: number
-        description: "Último año conocido de actividad del personaje."
+        description: "Último año conocido de actividad del personaje (NULL si continúa activo)."
 
       - name: first_appearance_name
         data_type: varchar
@@ -107,7 +107,163 @@ snapshots:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Timestamp de carga del registro."
+        description: "Timestamp de carga del registro en la capa silver."
+
+      - name: dbt_scd_id
+        data_type: varchar
+        description: "Identificador interno generado por dbt para el control SCD."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: dbt_updated_at
+        data_type: timestamp_ntz
+        description: "Timestamp de actualización del registro origen."
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: "Fecha de inicio de validez del registro snapshot."
+        data_tests:
+          - not_null
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: "Fecha de fin de validez del registro snapshot (NULL si activo)."
+
+  - name: snp_issues
+    description: "Snapshot SCD2 que almacena el histórico de cambios en issues/comics (cambios en ratings, stats, precios, etc)."
+
+    columns:
+      - name: issue_id
+        data_type: number
+        description: "Identificador único del issue."
+        data_tests:
+          - not_null
+
+      - name: issue_url
+        data_type: varchar
+        description: "URL oficial del issue."
+
+      - name: series_id
+        data_type: number
+        description: "Identificador de la serie a la que pertenece."
+
+      - name: release_date
+        data_type: date
+        description: "Fecha oficial de lanzamiento del issue."
+
+      - name: issue_title
+        data_type: varchar
+        description: "Título del issue."
+        data_tests:
+          - not_null
+
+      - name: cover_url
+        data_type: varchar
+        description: "URL de la portada del issue."
+
+      - name: description
+        data_type: varchar
+        description: "Sinopsis o descripción del contenido."
+
+      - name: rating_avg
+        data_type: number
+        description: "Calificación promedio del issue (NULL si no hay ratings)."
+
+      - name: ratings_count
+        data_type: number
+        description: "Cantidad de calificaciones recibidas."
+
+      - name: num_user_owns
+        data_type: number
+        description: "Cantidad de usuarios que poseen el issue (métrica de popularidad)."
+
+      - name: num_user_reads
+        data_type: number
+        description: "Cantidad de usuarios que han leído el issue."
+
+      - name: num_user_wishes
+        data_type: number
+        description: "Cantidad de usuarios que desean el issue."
+
+      - name: format_id
+        data_type: varchar
+        description: "Identificador del formato editorial (hash)."
+
+      - name: num_pages
+        data_type: number
+        description: "Número de páginas del issue."
+
+      - name: price_dollars
+        data_type: number
+        description: "Precio en dólares USD."
+
+      - name: upc
+        data_type: varchar
+        description: "Código UPC/barras del issue."
+
+      - name: sku
+        data_type: varchar
+        description: "SKU comercial."
+
+      - name: cover_date
+        data_type: date
+        description: "Fecha de portada (puede diferir de release_date)."
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Timestamp de carga en la capa silver."
+
+      - name: dbt_scd_id
+        data_type: varchar
+        description: "Identificador interno generado por dbt para el control SCD."
+        data_tests:
+          - not_null
+          - unique
+
+      - name: dbt_updated_at
+        data_type: timestamp_ntz
+        description: "Timestamp de actualización del registro origen."
+
+      - name: dbt_valid_from
+        data_type: timestamp_ntz
+        description: "Fecha de inicio de validez del registro snapshot."
+        data_tests:
+          - not_null
+
+      - name: dbt_valid_to
+        data_type: timestamp_ntz
+        description: "Fecha de fin de validez del registro snapshot (NULL si es versión actual)."
+
+  - name: snp_relationships
+    description: "Snapshot SCD2 que almacena el histórico de relaciones entre personajes."
+
+    columns:
+      - name: character_id
+        data_type: number
+        description: "Identificador del personaje origen."
+        data_tests:
+          - not_null
+
+      - name: relationship_category
+        data_type: varchar
+        description: "Categoría de la relación (FAMILY, ENEMY, ALLY, RIVAL, etc)."
+        data_tests:
+          - not_null
+
+      - name: relative_id
+        data_type: number
+        description: "ID del personaje relacionado."
+        data_tests:
+          - not_null
+
+      - name: relative_name
+        data_type: varchar
+        description: "Nombre del personaje relacionado."
+
+      - name: relationship_context
+        data_type: varchar
+        description: "Contexto o descripción de la relación."
 
       - name: dbt_scd_id
         data_type: varchar

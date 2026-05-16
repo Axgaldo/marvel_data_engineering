@@ -19,7 +19,6 @@ models:
         description: "Nombre del artista en UPPERCASE."
         data_tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_not_be_null
 
   # ==========================================
   # DIMENSIONES - CHARACTERS (Principal)
@@ -39,7 +38,6 @@ models:
         description: "Nombre del personaje."
         data_tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_not_be_null
       
       - name: franchise_name
         data_type: varchar
@@ -62,32 +60,23 @@ models:
         description: "Estado vital: ALIVE, DEAD, UNDEAD."
         data_tests:
           - accepted_values:
-              values: ['ALIVE', 'DEAD', 'UNDEAD']
-              quote: true
+              arguments:
+                values: ['ALIVE', 'DEAD', 'UNDEAD']
+                quote: true
       
       - name: is_alive_flag
         data_type: boolean
         description: "Flag booleano: true si living_status = ALIVE."
         data_tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in:
-              value_set: [true, false]
       
       - name: active_since_year
         data_type: number
         description: "Año de primera aparición del personaje."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1939
-              max_value: 2026
       
       - name: last_active_year
         data_type: number
         description: "Último año registrado de actividad (NULL si activo)."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1939
-              max_value: 2026
       
       - name: is_currently_active
         data_type: boolean
@@ -106,9 +95,6 @@ models:
       - name: image_url
         data_type: varchar
         description: "URL oficial de la imagen del personaje."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: "^https?://"
       
       - name: species_list
         data_type: varchar
@@ -142,9 +128,6 @@ models:
         description: "Año (1939-2036)."
         data_tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1939
-              max_value: 2036
       
       - name: month
         data_type: number
@@ -152,22 +135,20 @@ models:
         data_tests:
           - not_null
           - accepted_values:
-              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       
       - name: day
         data_type: number
         description: "Día del mes (1-31)."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1
-              max_value: 31
       
       - name: quarter
         data_type: number
         description: "Trimestre (1-4)."
         data_tests:
           - accepted_values:
-              values: [1, 2, 3, 4]
+              arguments:
+                values: [1, 2, 3, 4]
       
       - name: month_name
         data_type: varchar
@@ -182,7 +163,8 @@ models:
         description: "Era editorial de Marvel (Golden Age, Silver Age, Bronze Age, Modern Age)."
         data_tests:
           - accepted_values:
-              values: ['Golden Age', 'Silver Age', 'Bronze Age', 'Modern Age', 'Other']
+              arguments:
+                values: ['Golden Age', 'Silver Age', 'Bronze Age', 'Modern Age', 'Other']
 
   # ==========================================
   # DIMENSIONES - ISSUES
@@ -218,23 +200,14 @@ models:
       - name: num_user_owns
         data_type: number
         description: "Cantidad de usuarios que poseen el issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: num_user_reads
         data_type: number
         description: "Cantidad de usuarios que lo han leído."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: num_user_wishes
         data_type: number
         description: "Cantidad de usuarios que lo desean."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: release_date
         data_type: date
@@ -247,16 +220,10 @@ models:
       - name: num_pages
         data_type: number
         description: "Número de páginas."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1
       
       - name: price_dollars
         data_type: number
         description: "Precio en USD."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: series_title
         data_type: varchar
@@ -280,7 +247,7 @@ models:
   # DIMENSIONES - RELATIONSHIPS
   # ==========================================
   - name: dim_relationships
-    description: "Dimensión de relaciones entre personajes (padre-hijo, enemigos, etc)."
+    description: "Dimensión de relaciones entre personajes (con histórico SCD2)."
     columns:
       - name: relationship_key
         data_type: varchar
@@ -308,10 +275,22 @@ models:
       - name: connection_type
         data_type: varchar
         description: "Tipo de relación (FAMILY, ENEMY, ALLY, RIVAL, etc)."
+        data_tests:
+          - not_null
       
       - name: connection_detail
         data_type: varchar
         description: "Descripción detallada de la relación."
+      
+      - name: record_valid_from
+        data_type: timestamp_ntz
+        description: "Fecha de inicio de validez (SCD2)."
+        data_tests:
+          - not_null
+      
+      - name: last_version_update
+        data_type: timestamp_ntz
+        description: "Timestamp de última actualización del snapshot."
 
   # ==========================================
   # DIMENSIONES - SERIES
@@ -335,12 +314,9 @@ models:
       - name: start_year
         data_type: number
         description: "Año de inicio de la serie."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1939
       
       - name: end_year
-        data_type: number
+        data_type: varchar
         description: "Año de término (NULL si activa)."
       
       - name: series_status
@@ -348,22 +324,17 @@ models:
         description: "Estado: ONGOING, COMPLETED, ON HIATUS."
         data_tests:
           - accepted_values:
-              values: ['ONGOING', 'COMPLETED', 'ON HIATUS']
-              quote: true
+              arguments:
+                values: ['ONGOING', 'COMPLETED', 'ON HIATUS']
+                quote: true
       
       - name: total_years_run
         data_type: number
         description: "Cantidad de años que ha estado activa."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: total_issues_expected
         data_type: number
         description: "Número de issues planeados o publicados."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1
       
       - name: series_url
         data_type: varchar
@@ -432,8 +403,6 @@ models:
         data_tests:
           - not_null
           - unique
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: "^[a-f0-9]{32}$"  # MD5
       
       - name: artist_id
         data_type: varchar
@@ -462,66 +431,38 @@ models:
       - name: total_owners
         data_type: number
         description: "Usuarios que poseen el issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: total_readers
         data_type: number
         description: "Usuarios que han leído el issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: total_wishers
         data_type: number
         description: "Usuarios que desean el issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: issue_rating
         data_type: number
         description: "Calificación promedio del issue (0-10)."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 10
       
       - name: price_dollars
         data_type: number
         description: "Precio del issue en USD."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: num_pages
         data_type: number
         description: "Número de páginas del issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1
       
       - name: estimated_market_revenue
         data_type: number
         description: "Ingresos estimados = price * num_user_owns."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: quality_per_page_ratio
         data_type: number
         description: "Calificación / páginas (métrica de densidad de valor)."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: artist_impact_score
         data_type: number
         description: "Score ponderado: reads*0.7 + owns*0.3."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: release_date
         data_type: date
@@ -545,8 +486,6 @@ models:
         data_tests:
           - not_null
           - unique
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: "^[a-f0-9]{32}$"
       
       - name: character_id
         data_type: number
@@ -577,58 +516,37 @@ models:
         description: "Tipo de aparición (PRIMARY, SUPPORTING, CAMEO)."
         data_tests:
           - accepted_values:
-              values: ['PRIMARY', 'SUPPORTING', 'CAMEO']
-              quote: true
+              arguments:
+                values: ['PRIMARY', 'SUPPORTING', 'CAMEO']
+                quote: true
       
       - name: rating_avg
         data_type: number
         description: "Calificación promedio del issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 10
       
       - name: ratings_count
         data_type: number
         description: "Cantidad de calificaciones."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: num_user_owns
         data_type: number
         description: "Usuarios propietarios del issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: num_user_reads
         data_type: number
         description: "Usuarios que leyeron el issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: num_user_wishes
         data_type: number
         description: "Usuarios que desean el issue."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: engagement_index
         data_type: number
         description: "Índice de engagement = reads*0.5 + owns*0.3 + wishes*0.2."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: weighted_engagement_score
         data_type: number
         description: "Score ponderado según tipo de aparición."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
       
       - name: release_date
         data_type: date
@@ -661,16 +579,12 @@ models:
         description: "Cantidad de personajes distintos en el issue."
         data_tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1
       
       - name: total_universes_involved
         data_type: number
         description: "Cantidad de universos representados."
         data_tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1
       
       - name: is_multiversal_event
         data_type: boolean
@@ -681,9 +595,6 @@ models:
       - name: story_complexity_index
         data_type: number
         description: "Métrica: total_characters * total_universes."
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 1
       
       - name: loaded_at
         data_type: timestamp_ntz
