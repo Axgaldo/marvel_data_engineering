@@ -410,8 +410,9 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_artists')
-              field: artist_id
+              arguments:
+                to: ref('dim_artists')
+                field: artist_id
       
       - name: issue_id
         data_type: number
@@ -419,8 +420,9 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_issues')
-              field: issue_id
+              arguments:
+                to: ref('dim_issues')
+                field: issue_id
       
       - name: role_name
         data_type: varchar
@@ -493,8 +495,9 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_characters')
-              field: character_id
+              arguments:
+                to: ref('dim_characters')
+                field: character_id
       
       - name: issue_id
         data_type: number
@@ -502,8 +505,9 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_issues')
-              field: issue_id
+              arguments:
+                to: ref('dim_issues')
+                field: issue_id
       
       - name: series_id
         data_type: number
@@ -571,8 +575,9 @@ models:
           - not_null
           - unique
           - relationships:
-              to: ref('dim_issues')
-              field: issue_id
+              arguments:
+                to: ref('dim_issues')
+                field: issue_id
       
       - name: total_characters_present
         data_type: number

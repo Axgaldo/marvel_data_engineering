@@ -2,7 +2,7 @@
 with current_issues as (
     select * from {{ ref('snp_issues') }}
     where dbt_valid_to is null 
-),
+)
 select
     i.issue_id,
     i.issue_title,

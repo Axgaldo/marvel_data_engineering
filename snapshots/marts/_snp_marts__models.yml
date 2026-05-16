@@ -235,7 +235,7 @@ snapshots:
         data_type: timestamp_ntz
         description: "Fecha de fin de validez del registro snapshot (NULL si es versión actual)."
 
-  - name: snp_relationships
+  - name: snp_character_relationships
     description: "Snapshot SCD2 que almacena el histórico de relaciones entre personajes."
 
     columns:

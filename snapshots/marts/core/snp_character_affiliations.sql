@@ -2,7 +2,7 @@
 
 {{
     config(
-      unique_key='issue_id',
+      unique_key='character_id || team_id',
       strategy='timestamp',
       updated_at='loaded_at',
       invalidate_hard_deletes=True

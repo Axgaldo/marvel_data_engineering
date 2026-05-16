@@ -16,7 +16,7 @@ species_agg as (
 )
 
 select
-    c.character_id
+    c.character_id,
     c.character_name,
     f.franchise_name,
     u.universe_name,
@@ -43,5 +43,4 @@ left join franchises f on c.franchise_id = f.franchise_id
 left join universes u on c.universe_id = u.universe_id
 left join pronouns p on c.pronouns_id = p.pronouns_id
 left join entities e on c.multiversal_entity_id = e.multiversal_entity_id
--- Forzamos string en el join de especies para evitar el error 22018
 left join species_agg sp on c.character_id = sp.character_id

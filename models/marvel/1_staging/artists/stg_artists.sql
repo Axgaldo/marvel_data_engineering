@@ -21,6 +21,8 @@ unioned as (
 
 select
     {{ generate_marvel_id("artist_name") }} as artist_id,
-    artist_name
+    artist_name,
+    
+    current_timestamp() as loaded_at
 from unioned
 where artist_name is not null -- and artist_name like 'STAN LEE'

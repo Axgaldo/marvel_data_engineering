@@ -19,7 +19,7 @@ select
     {{ generate_marvel_id("char_json:name") }} as character_id,
     
     -- Metadato de la relación
-    {{ clean_text('char_json:type') }} as appearance_type -- "MAIN", "SUPPORTING", "CAMEO",
+    {{ clean_text('char_json:type') }} as appearance_type, -- "MAIN", "SUPPORTING", "CAMEO"
     
     current_timestamp() as loaded_at
 from source

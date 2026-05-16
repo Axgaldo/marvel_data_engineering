@@ -1,5 +1,5 @@
 with current_relationships as (
-    select * from {{ ref('snp_relationships') }}
+    select * from {{ ref('snp_character_relationships') }}
     where dbt_valid_to is null
 )
 

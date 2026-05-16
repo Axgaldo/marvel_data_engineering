@@ -24,9 +24,7 @@ final as (
             when year(date_id) between 1970 and 1985 then 'Bronze Age'
             when year(date_id) >= 1985 then 'Modern Age'
             else 'Other'
-        end as marvel_era,
-
-        loaded_at
+        end as marvel_era
     from raw_spine
 )
 
