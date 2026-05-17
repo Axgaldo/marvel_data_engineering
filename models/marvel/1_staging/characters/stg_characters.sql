@@ -38,8 +38,8 @@ extracted as (
             json_data:biography.first_appearance[0].url::string, 
             '/comic/([0-9]+)', 1, 1, 'e'
         )::int as first_appearance_issue_id,
-    
-        current_timestamp() as loaded_at
+        
+        ingested_at as loaded_at
     from source
 )
 

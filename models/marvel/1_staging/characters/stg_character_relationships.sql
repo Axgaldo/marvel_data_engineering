@@ -1,13 +1,15 @@
 with source as (
     select 
         try_to_number(json_data:char_id::string) as character_id,
-        json_data:relationships as rel_json
+        json_data:relationships as rel_json,
+        ingested_at as loaded_at
     from {{ source('marvel_raw', 'raw_characters') }}
 ),
 
 flattened as (
     select
         s.character_id,
+        s.loaded_at,
         rel.value:id::int as relative_id,
         {{ clean_text('rel.value:name') }} as relative_name,
         
@@ -29,5 +31,5 @@ select distinct
     relative_id,
     relative_name,
     relationship_context,
-    current_timestamp() as loaded_at
+    loaded_at
 from flattened

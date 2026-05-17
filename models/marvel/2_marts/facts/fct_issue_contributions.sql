@@ -4,7 +4,8 @@
     config(
         materialized='incremental',
         unique_key='contribution_pk',
-        on_schema_change='fail'
+        on_schema_change='fail',
+        incremental_strategy='merge'
     )
 }}
 

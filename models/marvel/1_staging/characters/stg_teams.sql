@@ -2,13 +2,15 @@
 
 with source as (
     select 
-        json_data:affiliations as aff_json
+        json_data:affiliations as aff_json,
+        ingested_at as loaded_at
     from {{ source('marvel_raw', 'raw_characters') }}
 ),
 
 flattened_teams as (
     select distinct
-        {{ clean_text('team.value:name') }} as team_name
+        {{ clean_text('team.value:name') }} as team_name,
+        loaded_at
     from source,
     lateral flatten(input => aff_json) f,
     lateral flatten(input => f.value) team
@@ -19,6 +21,6 @@ select
     {{ generate_marvel_id("team_name") }} as team_id,
     team_name,
     
-    current_timestamp() as loaded_at
+    loaded_at
 from flattened_teams
 where team_name is not null
