@@ -2,10 +2,7 @@
 -- Checks: price * owners = estimated_market_revenue, quality_per_page_ratio coherente, etc
 
 select
-    artist_performance_pk,
-    artist_id,
     issue_id,
-    role_name,
     case 
         -- Test 1: estimated_market_revenue debe ser price * num_user_owns
         when abs(estimated_market_revenue - (price_dollars * total_owners)) > 0.01
@@ -39,9 +36,17 @@ select
         when total_owners < 0 or total_readers < 0 or total_wishers < 0
         then 'FAIL: user counters are negative'
         
+        -- Test 8: Los contadores de usuarios no deben ser negativos
+        when engagement_index > 0
+        then 'FAIL: user counters are negative'
+        
+        -- Test 8: Los contadores de usuarios no deben ser negativos
+        when weighted_engagement_score > 0
+        then 'FAIL: user counters are negative'
+        
         else 'PASS'
     end as validation_result
 
-from {{ ref('fct_artist_performance') }}
+from {{ ref('fct_issue_contributions') }}
 
 where validation_result != 'PASS'
