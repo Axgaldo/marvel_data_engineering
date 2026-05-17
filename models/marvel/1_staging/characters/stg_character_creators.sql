@@ -15,4 +15,4 @@ select
     
     loaded_at
 from creators_flat
-where creator_name is not null
+where creator_name_raw is not null

@@ -11,9 +11,9 @@ with raw_roles as (
     lateral flatten(input => split(c.value:role, ',')) r
 )
 
-select
+select distinct
     {{ generate_marvel_id("role_name_raw") }} as role_id,
     {{ clean_text('role_name_raw') }}  as role_description,
     loaded_at
 from raw_roles
-where role_name is not null
+where role_name_raw is not null

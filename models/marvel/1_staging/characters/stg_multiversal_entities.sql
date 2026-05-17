@@ -22,4 +22,4 @@ select distinct
     
     loaded_at
 from all_entities
-where entity_name is not null
+where entity_name_raw is not null

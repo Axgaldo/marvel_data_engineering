@@ -435,30 +435,16 @@ models:
         data_type: timestamp_ntz
         description: "Último timestamp de cambio de estado."
 
-  # ==========================================
-  # FACT TABLE - ISSUE CONTRIBUTIONS
-  # ==========================================
+# ==========================================
+# FACT TABLES
+# ==========================================
 
-  - name: fct_issue_contributions
-    description: >
-      Tabla de hechos granular a nivel contribución por issue.
-      Cada fila representa la participación de un artista o la aparición
-      de un personaje en un issue de Marvel.
-
+  - name: fct_issue_character_appearances
+    description: "Tabla de hechos: apariciones de personajes por issue. Grano: issue + character."
     columns:
-
-      - name: contribution_pk
-        data_type: varchar
-        description: >
-          Clave primaria surrogate generada a partir del tipo de contribución,
-          issue_id y contributor_id.
-        data_tests:
-          - not_null
-          - unique
-
       - name: issue_id
         data_type: number
-        description: "FK al issue relacionado."
+        description: "FK a dim_issues."
         data_tests:
           - not_null
           - relationships:
@@ -468,7 +454,7 @@ models:
 
       - name: series_id
         data_type: number
-        description: "FK de la serie editorial asociada al issue."
+        description: "FK a dim_series."
         data_tests:
           - not_null
           - relationships:
@@ -476,50 +462,69 @@ models:
                 to: ref('dim_series')
                 field: series_id
 
-      - name: contributor_id
-        data_type: varchar
-        description: >
-          ID del contribuidor. Puede representar un artista
-          o un personaje dependiendo del contributor_type.
+      - name: character_id
+        data_type: number
+        description: "FK a dim_characters."
         data_tests:
           - not_null
-
-      - name: contributor_type
-        data_type: varchar
-        description: >
-          Tipo de contribución:
-          ARTIST o CHARACTER.
-        data_tests:
-          - not_null
-          - accepted_values:
+          - relationships:
               arguments:
-                values: ['ARTIST', 'CHARACTER']
-                quote: true
-
-      - name: role_name
-        data_type: varchar
-        description: >
-          Rol creativo del artista.
-          NULL cuando contributor_type = CHARACTER.
+                to: ref('dim_characters')
+                field: character_id
 
       - name: appearance_type
         data_type: varchar
-        description: >
-          Tipo de aparición narrativa del personaje.
-          NULL cuando contributor_type = ARTIST.
+        description: "Tipo de aparición: PRIMARY, SUPPORTING, CAMEO."
         data_tests:
+          - not_null
           - accepted_values:
               arguments:
                 values: ['PRIMARY', 'SUPPORTING', 'CAMEO']
                 quote: true
-              config:
-                severity: warn
+
+      - name: rating_avg
+        data_type: number
+        description: "Rating promedio del issue."
+
+      - name: ratings_count
+        data_type: number
+        description: "Cantidad de valoraciones del issue."
+
+      - name: num_user_owns
+        data_type: number
+        description: "Usuarios que poseen el issue."
+        data_tests:
+          - not_null
+
+      - name: num_user_reads
+        data_type: number
+        description: "Usuarios que leyeron el issue."
+
+      - name: num_user_wishes
+        data_type: number
+        description: "Usuarios que desean el issue."
 
       - name: release_date
         data_type: date
-        description: "Fecha de lanzamiento oficial del issue."
+        description: "Fecha de lanzamiento."
         data_tests:
           - not_null
+
+      - name: num_pages
+        data_type: number
+        description: "Páginas del issue."
+
+      - name: price_dollars
+        data_type: number
+        description: "Precio en USD."
+
+      - name: estimated_revenue
+        data_type: number
+        description: "Ingresos estimados = precio * num_user_owns."
+
+      - name: quality_per_page_ratio
+        data_type: number
+        description: "Rating / páginas."
 
       - name: loaded_at
         data_type: timestamp_ntz
@@ -527,36 +532,147 @@ models:
         data_tests:
           - not_null
 
-    data_tests:
+  - name: fct_issue_artist_credits
+    description: "Tabla de hechos: créditos artísticos por issue. Grano: issue + artist + role."
+    columns:
+      - name: issue_id
+        data_type: number
+        description: "FK a dim_issues."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_issues')
+                field: issue_id
 
-      # Evita duplicados reales de contribución
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns:
-              - issue_id
-              - contributor_id
-              - contributor_type
-              - role_name
-              - appearance_type
+      - name: series_id
+        data_type: number
+        description: "FK a dim_series."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_series')
+                field: series_id
 
-      # Validación lógica:
-      # si es ARTIST debe tener role_name
-      - dbt_utils.expression_is_true:
-          arguments:
-            expression: >
-              case
-                when contributor_type = 'ARTIST'
-                then role_name is not null
-                else true
-              end
+      - name: artist_id
+        data_type: varchar
+        description: "FK a dim_artists."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_artists')
+                field: artist_id
 
-      # Validación lógica:
-      # si es CHARACTER debe tener appearance_type
-      - dbt_utils.expression_is_true:
-          arguments:
-            expression: >
-              case
-                when contributor_type = 'CHARACTER'
-                then appearance_type is not null
-                else true
-              end
+      - name: role_name
+        data_type: varchar
+        description: "Rol creativo: WRITER, ARTIST, COLORIST, etc."
+        data_tests:
+          - not_null
+
+      - name: rating_avg
+        data_type: number
+        description: "Rating promedio del issue."
+
+      - name: ratings_count
+        data_type: number
+        description: "Cantidad de valoraciones del issue."
+
+      - name: num_user_owns
+        data_type: number
+        description: "Usuarios que poseen el issue."
+        data_tests:
+          - not_null
+
+      - name: num_user_reads
+        data_type: number
+        description: "Usuarios que leyeron el issue."
+
+      - name: num_user_wishes
+        data_type: number
+        description: "Usuarios que desean el issue."
+
+      - name: release_date
+        data_type: date
+        description: "Fecha de lanzamiento."
+        data_tests:
+          - not_null
+
+      - name: num_pages
+        data_type: number
+        description: "Páginas del issue."
+
+      - name: price_dollars
+        data_type: number
+        description: "Precio en USD."
+
+      - name: estimated_revenue
+        data_type: number
+        description: "Ingresos estimados = precio * num_user_owns."
+
+      - name: quality_per_page_ratio
+        data_type: number
+        description: "Rating / páginas."
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Timestamp de carga incremental."
+        data_tests:
+          - not_null
+
+  - name: fct_character_capability_network
+    description: "Tabla de hechos: red de capacidades entre personajes. Grano: character + capability."
+    columns:
+      - name: character_id
+        data_type: number
+        description: "FK a dim_characters."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_characters')
+                field: character_id
+                
+      - name: artist_id
+        data_type: varchar
+        description: "FK a dim_artists. Clave del creador del personaje."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_artists')
+                field: artist_id
+
+      - name: capability_name
+        data_type: varchar
+        description: "Nombre de la capacidad"
+        data_tests:
+          - not_null
+
+      - name: is_super_power
+        data_type: varchar
+        description: "Booleano para saber si es superpoder o no"
+        data_tests:
+          - not_null
+
+      - name: characters_with_capability
+        data_type: number
+        description: "Cuántos personajes comparten esta capacidad."
+        data_tests:
+          - not_null
+
+      - name: capability_rarity
+        data_type: varchar
+        description: "Nivel de rareza: COMMON, UNCOMMON, RARE, UNIQUE."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['COMMON', 'UNCOMMON', 'RARE', 'UNIQUE']
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Timestamp de carga incremental."
+        data_tests:
+          - not_null
