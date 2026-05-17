@@ -58,7 +58,7 @@ models:
 snapshots:
   marvel_project:
     +database: "{{ env_var('DBT_ENVIRONMENTS') }}_MARVEL_GOLD_DB"
-    +target_schema: CORE
+    +target_schema: SNAPSHOT
 
 data_tests:
   marvel_project:
