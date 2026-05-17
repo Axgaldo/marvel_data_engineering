@@ -3,9 +3,9 @@
 {{
     config(
       unique_key='character_id || team_id',
-      strategy='timestamp',
-      updated_at='loaded_at',
-      invalidate_hard_deletes=True
+      strategy='check',
+      check_cols='all',
+      hard_deletes='invalidate'
     )
 }}
 

@@ -2,13 +2,14 @@
 
 with source as (
     select distinct
-        {{ clean_text('json_data:biography.franchise') }} as franchise_name
+        json_data:biography.franchise::string as franchise_name_raw,
+        ingested_at as loaded_at
     from {{ source('marvel_raw', 'raw_characters') }}
 )
 
 select
-    {{ dbt_utils.generate_surrogate_key(['franchise_name']) }} as franchise_id,
-    franchise_name,
+    {{ generate_marvel_id(['franchise_name_raw']) }} as franchise_id,
+    {{ clean_text('franchise_name_raw') }} as franchise_name,
     
-    current_timestamp() as loaded_at
+    loaded_at
 from source

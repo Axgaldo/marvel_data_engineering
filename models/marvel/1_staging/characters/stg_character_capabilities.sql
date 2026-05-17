@@ -2,8 +2,9 @@
 
 with link_data as (
     select 
-        try_to_number(json_data:char_id::string) as character_id,
-        {{ clean_text('f.value') }} as capability_name
+        json_data:char_id::int as character_id,
+        f.value as capability_name_raw,
+        ingested_at as loaded_at
     from {{ source('marvel_raw', 'raw_characters') }},
     lateral flatten(input => json_data:capabilities.abilities) f
 
@@ -11,13 +12,14 @@ with link_data as (
 
     select 
         json_data:char_id::int as character_id,
-        {{ clean_text('f.value') }} as capability_name
+        f.value as capability_name_raw,
+        ingested_at as loaded_at
     from {{ source('marvel_raw', 'raw_characters') }},
     lateral flatten(input => json_data:capabilities.proficiencies) f
 )
 select
     character_id,
-    {{ generate_marvel_id("capability_name") }} as capability_id,
+    {{ generate_marvel_id("capability_name_raw") }} as capability_id,
     
-    current_timestamp() as loaded_at
+    loaded_at
 from link_data

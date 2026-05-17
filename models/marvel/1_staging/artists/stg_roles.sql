@@ -1,7 +1,10 @@
 -- stg_roles.sql
 
 with raw_roles as (
-    select distinct {{ clean_text('r.value') }} as role_name
+    select distinct
+    r.value as role_name_raw,
+    ingested_at as loaded_at
+
     from {{ source('marvel_raw', 'raw_comics') }},
     lateral flatten(input => json_data:stories) s,
     lateral flatten(input => s.value:creators) c,
@@ -9,8 +12,8 @@ with raw_roles as (
 )
 
 select
-    {{ generate_marvel_id("role_name") }} as role_id,
-    role_name as role_description,
-    current_timestamp() as loaded_at
+    {{ generate_marvel_id("role_name_raw") }} as role_id,
+    {{ clean_text('role_name_raw') }}  as role_description,
+    loaded_at
 from raw_roles
 where role_name is not null

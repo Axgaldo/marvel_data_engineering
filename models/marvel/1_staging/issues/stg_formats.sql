@@ -2,15 +2,15 @@
 
 with source as (
     select distinct
-        {{ clean_text('json_data:details.format') }} as format_name
+        json_data:details.format as format_name_raw,
+        ingested_at as loaded_at
     from {{ source('marvel_raw', 'raw_comics') }}
 )
 
 select
-    -- La macro se encarga de la limpieza y el ID único
-    {{ generate_marvel_id('format_name') }} as format_id,
-    format_name,
+    {{ generate_marvel_id('format_name_raw') }} as format_id,
+    {{ clean_text('format_name_raw') }}  as format_name,
     
-    current_timestamp() as loaded_at
+    loaded_at
 from source
 where format_name is not null
