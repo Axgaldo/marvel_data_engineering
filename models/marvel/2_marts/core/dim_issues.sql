@@ -78,7 +78,7 @@ select
             )
         ),
         2
-    ) as issue_weighted_rating,
+    ) as rating_weighted,
 
     i.num_user_owns,
 

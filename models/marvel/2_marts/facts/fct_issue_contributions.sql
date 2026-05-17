@@ -15,7 +15,6 @@ with issues_data as (
         series_id,
         release_date,
         loaded_at
-
     from {{ ref('stg_issues') }}
 
     {% if is_incremental() %}
@@ -30,13 +29,9 @@ with issues_data as (
 
 stories as (
 
-    -- Bridge técnico:
-    -- conecta issues con artistas/personajes
-
     select
         story_id,
         issue_id
-
     from {{ ref('stg_stories') }}
 
 ),
@@ -54,23 +49,19 @@ artist_contributions as (
             's.issue_id',
             'sa.artist_id',
             'sa.role_name'
-        ]) }} as contribution_pk,
+        ]) }}::varchar as contribution_pk,
 
-        s.issue_id,
+        s.issue_id::number as issue_id,
+        id.series_id::number as series_id,
 
-        id.series_id,
+        sa.artist_id::varchar as contributor_id,
+        'ARTIST'::varchar as contributor_type,
 
-        sa.artist_id as contributor_id,
-
-        'ARTIST' as contributor_type,
-
-        sa.role_name,
-
+        sa.role_name::varchar as role_name,
         null::varchar as appearance_type,
 
-        id.release_date,
-
-        id.loaded_at
+        id.release_date::date as release_date,
+        id.loaded_at::timestamp_ntz as loaded_at
 
     from stories s
 
@@ -79,7 +70,6 @@ artist_contributions as (
 
     inner join {{ ref('stg_story_artists') }} sa
         on s.story_id = sa.story_id
-
 ),
 
 /* =========================================================
@@ -90,28 +80,24 @@ character_contributions as (
 
     select
 
-        {{ dbt_utils.generate_surrogate_key([
+        {{ generate_marvel_id([
             "'CHARACTER'",
             's.issue_id',
             'sc.character_id',
             'sc.appearance_type'
-        ]) }} as contribution_pk,
+        ]) }}::varchar as contribution_pk,
 
-        s.issue_id,
+        s.issue_id::number as issue_id,
+        id.series_id::number as series_id,
 
-        id.series_id,
-
-        sc.character_id as contributor_id,
-
-        'CHARACTER' as contributor_type,
+        sc.character_id::varchar as contributor_id,
+        'CHARACTER'::varchar as contributor_type,
 
         null::varchar as role_name,
+        upper(sc.appearance_type)::varchar as appearance_type,
 
-        upper(sc.appearance_type) as appearance_type,
-
-        id.release_date,
-
-        id.loaded_at
+        id.release_date::date as release_date,
+        id.loaded_at::timestamp_ntz as loaded_at
 
     from stories s
 
@@ -120,11 +106,18 @@ character_contributions as (
 
     inner join {{ ref('stg_story_characters') }} sc
         on s.story_id = sc.story_id
-
 )
 
-select * from artist_contributions
+/* =========================================================
+   FINAL UNION (STRICT TYPING)
+========================================================= */
+
+select
+    *
+from artist_contributions
 
 union all
 
-select * from character_contributions
+select
+    *
+from character_contributions
