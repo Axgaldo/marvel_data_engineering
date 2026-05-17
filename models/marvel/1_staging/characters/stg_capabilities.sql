@@ -19,7 +19,7 @@ with all_capabilities as (
     lateral flatten(input => json_data:capabilities.proficiencies) f
 )
 select
-    {{ generate_marvel_id("capability_name") }} as capability_id,
+    {{ generate_marvel_id("capability_name_raw") }} as capability_id,
     {{ clean_text('capability_name_raw') }}  as capability_name,
     is_super_power,
     loaded_at

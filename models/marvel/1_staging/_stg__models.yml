@@ -21,7 +21,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_roles
     description: "Diccionario de roles creativos para normalización."
@@ -39,7 +39,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   # ==========================================
   # CHARACTERS
@@ -130,7 +130,63 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
+
+   # ==========================================
+   # CAPABILITIES (POWERS & SKILLS)
+   # ==========================================
+  - name: stg_capabilities
+    description: "Maestro de superpoderes y habilidades únicas (segregadas por tipo)."
+    columns:
+      - name: capability_id
+        data_type: varchar
+        description: "PK generada por hash basada en el nombre de la capacidad."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: capability_name
+        data_type: varchar
+        description: "Nombre normalizado del superpoder o habilidad."
+        data_tests:
+          - not_null
+
+      - name: is_super_power
+        data_type: boolean
+        description: "True si es un superpoder (abilities), False si es habilidad/destreza (proficiencies)."
+        data_tests:
+          - not_null
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha y hora de la ingesta del JSON."
+
+  - name: stg_character_capabilities
+    description: "Bridge table: relación N:M entre personajes y sus capacidades."
+    columns:
+      - name: character_id
+        data_type: number
+        description: "FK a personaje."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_characters')
+                field: character_id
+
+      - name: capability_id
+        data_type: varchar
+        description: "FK a capacidad."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_capabilities')
+                field: capability_id
+
+      - name: loaded_at
+        data_type: timestamp_ntz
+        description: "Fecha y hora de la ingesta del JSON."
 
   # ==========================================
   # SPECIES & PRONOUNS
@@ -158,7 +214,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_species
     description: "Maestro de especies."
@@ -174,7 +230,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_pronouns
     description: "Maestro de pronombres normalizados (separados por barra /)."
@@ -190,7 +246,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   # ==========================================
   # ENTITIES, FRANCHISES & TEAMS
@@ -207,7 +263,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_franchises
     columns:
@@ -221,7 +277,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_teams
     columns:
@@ -235,7 +291,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_character_affiliations
     description: "Relación personajes y equipos."
@@ -261,7 +317,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_character_creators
     columns:
@@ -273,7 +329,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_character_relationships
     columns:
@@ -290,7 +346,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   # ==========================================
   # ISSUES & SERIES
@@ -317,7 +373,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_formats
     columns:
@@ -331,7 +387,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_issues
     columns:
@@ -390,7 +446,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   # ==========================================
   # STORIES
@@ -413,7 +469,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_story_characters
     columns:
@@ -431,7 +487,7 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."
 
   - name: stg_story_artists
     columns:
@@ -448,4 +504,4 @@ models:
 
       - name: loaded_at
         data_type: timestamp_ntz
-        description: "Fecha de carga a staging."
+        description: "Fecha y hora de la ingesta del JSON."

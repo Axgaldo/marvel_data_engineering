@@ -1,4 +1,4 @@
--- set_artists.sql
+-- stg_artists.sql
 
 with artists_from_issues as (
     select distinct
@@ -18,16 +18,17 @@ artists_from_characters as (
 ),
 
 unioned as (
-    select artist_name, ingested_at from artists_from_issues
+    select artist_name_raw, loaded_at from artists_from_issues
     union
-    select artist_name, ingested_at from artists_from_characters
+    select artist_name_raw, loaded_at from artists_from_characters
 )
 
-select
-    {{ generate_marvel_id("artist_name") }} as artist_id,
+select distinct
+    {{ generate_marvel_id("artist_name_raw") }} as artist_id,
     {{ clean_text('artist_name_raw') }} as artist_name,
     
-    loaded_at
+    max(loaded_at) as loaded_at -- Nos quedamos con la fecha más reciente
 
 from unioned
-where artist_name is not null -- and artist_name like 'STAN LEE'
+where artist_name_raw is not null -- and artist_name like 'STAN LEE'
+group by 1, 2

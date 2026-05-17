@@ -15,4 +15,4 @@ select
     
     loaded_at
 from character_species_split
-where species_name is not null
+where species_name_raw is not null
