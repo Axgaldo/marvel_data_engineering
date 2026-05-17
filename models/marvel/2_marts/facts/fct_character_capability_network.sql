@@ -3,7 +3,7 @@
 {{
   config(
     materialized='incremental',
-    unique_key=['character_id', 'capability_name'],
+    unique_key=['character_id', 'capability_name', 'artist_id'],
     on_schema_change='fail'
   )
 }}
@@ -29,10 +29,13 @@ capability_sharing_stats as (
     from {{ ref('stg_character_capabilities') }} cc1
     left join {{ ref('stg_character_capabilities') }} cc2 on cc1.capability_id = cc2.capability_id
     group by 1
-)
+),
+
+char_creators as (select * from {{ ref('stg_character_creators') }})
 
 select
     cc.character_id,
+    ccr.artist_id, -- id del creador
     cc.capability_name,
     -- case when cc.is_super_power then 'SUPERPOWER' else 'SKILL' end as capability_type,
     cc.is_super_power,
@@ -47,3 +50,4 @@ select
 
 from character_caps cc
 left join capability_sharing_stats css on cc.capability_id = css.capability_id
+left join char_creators ccr on cc.character_id = ccr.character_id

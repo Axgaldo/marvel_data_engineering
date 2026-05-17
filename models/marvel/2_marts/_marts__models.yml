@@ -633,6 +633,16 @@ models:
               arguments:
                 to: ref('dim_characters')
                 field: character_id
+                
+      - name: artist_id
+        data_type: varchar
+        description: "FK a dim_artists. Clave del creador del personaje."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_artists')
+                field: artist_id
 
       - name: capability_name
         data_type: varchar
@@ -660,7 +670,6 @@ models:
           - accepted_values:
               arguments:
                 values: ['COMMON', 'UNCOMMON', 'RARE', 'UNIQUE']
-                quote: true
 
       - name: loaded_at
         data_type: timestamp_ntz
