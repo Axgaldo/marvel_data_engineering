@@ -106,7 +106,7 @@ select
         else 0
     end as quality_per_page_ratio,
 
-    s.series_title,
+    s.series_id,
 
     f.format_name,
 
