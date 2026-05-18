@@ -27,7 +27,10 @@ flattened as (
         
         -- Información de Cabecera
         {{ clean_text('c.json_data:title') }} as issue_title,
-        c.json_data:cover_url::string as cover_url,
+        case
+            when c.json_data:cover_url::string like 'http%' then c.json_data:cover_url::string
+            else null
+        end as cover_url,
         c.json_data:description::string as description,
         
         -- Ratings (si el rating_avg es 0 lo ponemos null porque no es válido )

@@ -9,7 +9,10 @@ extracted as (
         -- Identificadores básicos
         json_data:char_id::int as character_id,
         {{ clean_text('json_data:name') }} as character_name,
-        json_data:image::string as image_url,
+        case
+            when json_data:image::string like 'http%' then json_data:image::string
+            else null
+        end as image_url,
         
         -- FKs a tablas maestras (Normalización)
         {{ generate_marvel_id("json_data:biography.franchise") }} as franchise_id,
