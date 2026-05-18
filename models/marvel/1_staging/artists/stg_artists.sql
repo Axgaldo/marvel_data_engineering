@@ -30,5 +30,5 @@ select distinct
     max(loaded_at) as loaded_at -- Nos quedamos con la fecha más reciente
 
 from unioned
-where artist_name_raw is not null -- and artist_name like 'STAN LEE'
+where artist_name_raw is not null  and artist_name not like '2 MOORE ARTISTS'
 group by 1, 2
