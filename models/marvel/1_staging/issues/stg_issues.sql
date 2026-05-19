@@ -8,8 +8,7 @@ release_dates_source as (
     select 
         try_to_number(json_data:comic_id::string) as issue_id,
         {{ clean_text('json_data:release_date_raw') }} as release_date,
-        try_to_number(json_data:series_id::string) as series_id,
-        ingested_at as loaded_at
+        try_to_number(json_data:series_id::string) as series_id
     from {{ source('marvel_raw', 'raw_release_dates') }}
 ),
 
@@ -52,12 +51,14 @@ flattened as (
         {{ clean_text('c.json_data:details.upc') }} as upc,
         {{ clean_text('c.json_data:details.sku') }} as sku,
         TRY_TO_DATE(UPPER(c.json_data:details.cover_date), 'MON YYYY') as cover_date,
-    
-        loaded_at
+
+        c.ingested_at as loaded_at
         
     from comics_source c
     left join release_dates_source r
         on try_to_number(c.json_data:comic_id::string) = r.issue_id
 )
 
-select * from flattened
+select * from flattened -- WHERE ISSUE_ID = 2325018 
+
+qualify row_number() over (partition by issue_id order by loaded_at desc) = 1

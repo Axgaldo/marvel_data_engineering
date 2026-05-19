@@ -18,4 +18,7 @@ select
     try_to_number(story_json:pages::string) as story_pages,
     
     loaded_at
+
 from source
+
+qualify row_number() over (partition by story_id order by loaded_at desc) = 1

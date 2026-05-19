@@ -22,5 +22,6 @@ select
     {{ generate_marvel_id("capability_name_raw") }} as capability_id,
     {{ clean_text('capability_name_raw') }}  as capability_name,
     is_super_power,
-    loaded_at
+    max(loaded_at) as loaded_at -- Nos quedamos con la fecha más reciente
 from all_capabilities
+group by 1,2,3

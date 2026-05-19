@@ -15,3 +15,5 @@ select
     
     ingested_at as loaded_at
 from source
+
+qualify row_number() over (partition by series_id order by loaded_at desc) = 1

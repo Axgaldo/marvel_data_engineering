@@ -21,3 +21,5 @@ from source,
 lateral flatten(input => aff_json) f,
 lateral flatten(input => f.value) team
 where team.value:name::string is not null
+
+qualify row_number() over ( partition by character_id, team_id, is_current  order by loaded_at desc ) = 1

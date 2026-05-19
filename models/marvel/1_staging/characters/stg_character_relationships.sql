@@ -33,3 +33,5 @@ select distinct
     relationship_context,
     loaded_at
 from flattened
+
+qualify row_number() over (partition by character_id, relative_id, relationship_context order by loaded_at desc) = 1

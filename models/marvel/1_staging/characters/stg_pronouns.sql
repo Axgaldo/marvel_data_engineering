@@ -15,3 +15,5 @@ select
     
     loaded_at
 from raw_pronouns
+
+qualify row_number() over (partition by pronouns_id order by loaded_at desc) = 1

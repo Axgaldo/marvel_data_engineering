@@ -16,3 +16,5 @@ select
     loaded_at
 from character_species_split
 where species_name_raw is not null
+
+qualify row_number() over (partition by character_id, species_id order by loaded_at desc) = 1

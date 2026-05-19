@@ -24,3 +24,5 @@ select
     loaded_at
 from flattened_teams
 where team_name is not null
+
+qualify row_number() over (partition by team_id order by loaded_at desc) = 1

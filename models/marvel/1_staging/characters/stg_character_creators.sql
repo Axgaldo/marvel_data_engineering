@@ -16,3 +16,5 @@ select
     loaded_at
 from creators_flat
 where creator_name_raw is not null
+
+qualify row_number() over (partition by character_id, artist_id order by loaded_at desc) = 1

@@ -48,3 +48,5 @@ extracted as (
 
 select * from extracted
 -- WHERE living_status is not null and not (living_status like 'Alive') and not (living_status like 'Dead')  and not (living_status like 'Undead') 
+
+qualify row_number() over (partition by character_id order by loaded_at desc) = 1

@@ -23,3 +23,5 @@ select
     
     loaded_at
 from link_data
+
+qualify row_number() over (partition by character_id, capability_id order by loaded_at desc) = 1
