@@ -28,3 +28,5 @@ select
     
     loaded_at
 from source
+
+qualify row_number() over (partition by story_id, character_id, appearance_type order by loaded_at desc) = 1

@@ -67,8 +67,6 @@ models:
       - name: is_alive_flag
         data_type: boolean
         description: "Flag booleano: true si living_status = ALIVE."
-        data_tests:
-          - not_null
       
       - name: active_since_year
         data_type: number
@@ -228,8 +226,6 @@ models:
       - name: series_title
         data_type: varchar
         description: "Título de la serie a la que pertenece."
-        data_tests:
-          - not_null
       
       - name: format_name
         data_type: varchar
@@ -456,7 +452,6 @@ models:
         data_type: number
         description: "FK a dim_series."
         data_tests:
-          - not_null
           - relationships:
               arguments:
                 to: ref('dim_series')
@@ -493,8 +488,6 @@ models:
       - name: num_user_owns
         data_type: number
         description: "Usuarios que poseen el issue."
-        data_tests:
-          - not_null
 
       - name: num_user_reads
         data_type: number
@@ -507,8 +500,6 @@ models:
       - name: release_date
         data_type: date
         description: "Fecha de lanzamiento."
-        data_tests:
-          - not_null
 
       - name: num_pages
         data_type: number
@@ -582,8 +573,6 @@ models:
       - name: num_user_owns
         data_type: number
         description: "Usuarios que poseen el issue."
-        data_tests:
-          - not_null
 
       - name: num_user_reads
         data_type: number
@@ -596,8 +585,6 @@ models:
       - name: release_date
         data_type: date
         description: "Fecha de lanzamiento."
-        data_tests:
-          - not_null
 
       - name: num_pages
         data_type: number

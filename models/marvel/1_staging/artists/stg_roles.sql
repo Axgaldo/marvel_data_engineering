@@ -14,6 +14,8 @@ with raw_roles as (
 select distinct
     {{ generate_marvel_id("role_name_raw") }} as role_id,
     {{ clean_text('role_name_raw') }}  as role_description,
-    loaded_at
+    
+    max(loaded_at) as loaded_at -- Nos quedamos con la fecha más reciente
 from raw_roles
 where role_name_raw is not null
+group by 1, 2

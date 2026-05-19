@@ -13,3 +13,5 @@ select
     
     loaded_at
 from source
+
+qualify row_number() over (partition by universe_id order by loaded_at desc) = 1

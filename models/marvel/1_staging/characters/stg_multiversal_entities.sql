@@ -23,3 +23,5 @@ select distinct
     loaded_at
 from all_entities
 where entity_name_raw is not null
+
+qualify row_number() over (partition by multiversal_entity_id order by loaded_at desc) = 1
