@@ -3,6 +3,9 @@
 Proyecto de transformación de datos del universo Marvel usando **dbt** y **Snowflake** con Incremental Fact Tables y SCD2 Snapshots.
 
 ---
+## 📊 Presentación 
+
+https://canva.link/48mnw3w26dc1r7g
 
 ## 🎯 Visión General
 
