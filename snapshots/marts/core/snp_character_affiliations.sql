@@ -2,13 +2,18 @@
 
 {{
     config(
-      unique_key='character_id || team_id',
+      unique_key="character_id || '-' || team_id",
       strategy='check',
-      check_cols='all',
+      check_cols=[
+        'character_id',
+        'team_id',
+        'is_current'
+      ],
       hard_deletes='invalidate'
     )
 }}
 
-select * from {{ ref('stg_character_affiliations') }}
+select *
+from {{ ref('stg_character_affiliations') }}
 
 {% endsnapshot %}
